@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Güvenlik — İlk Kurulum</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .wizard-container {
+            max-width: 760px;
+            margin: 40px auto;
+            padding: 0 16px;
+        }
+        .wizard-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .wizard-header .logo {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .wizard-header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .wizard-header p {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+        /* Adım göstergesi */
+        .steps-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 32px;
+        }
+        .step-dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        .step-dot.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+        .step-dot.done {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: var(--border);
+            max-width: 80px;
+            transition: background 0.3s ease;
+        }
+        .step-line.done {
+            background: var(--success);
+        }
+        .step-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 6px;
+        }
+        .steps-wrapper {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 32px;
+        }
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+        }
+        .step-connector {
+            flex: 1;
+            height: 2px;
+            background: var(--border);
+            margin-top: 17px;
+            max-width: 60px;
+            transition: background 0.3s ease;
+        }
+        .step-connector.done { background: var(--success); }
+
+        /* Kart */
+        .wizard-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            margin-bottom: 20px;
+        }
+        .wizard-card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .wizard-card .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        /* Blok kartları */
+        .block-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .block-card {
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        .block-card:hover { border-color: var(--accent); }
+        .block-card.selected {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+        .block-card .block-letter {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .block-card .block-name-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+            font-size: 13px;
+            padding: 2px 0;
+            outline: none;
+            font-family: inherit;
+        }
+        .block-card .block-name-input:focus {
+            border-bottom-color: var(--accent);
+        }
+        .block-card .apt-count {
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .block-card .apt-count input {
+            width: 50px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 13px;
+            padding: 3px 6px;
+            outline: none;
+            font-family: inherit;
+            text-align: center;
+        }
+        .block-card .apt-count input:focus { border-color: var(--accent); }
+        .block-card .apt-count label { font-size: 11px; color: var(--text-muted); }
+        .block-card .remove-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: var(--danger-bg);
+            border: none;
+            color: var(--danger);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .block-card .remove-btn:hover { background: var(--danger); color: white; }
+
+        /* Daire tipi */
+        .apt-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .apt-type-card {
+            background: var(--bg-input);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .apt-type-card:hover { border-color: rgba(79,140,255,0.4); }
+        .apt-type-card.selected {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+        .apt-type-card .type-label {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent);
+            display: block;
+        }
+        .apt-type-card .type-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        /* Özet */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .summary-item {
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+        }
+        .summary-item .s-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .summary-item .s-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .block-summary-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .block-summary-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 14px;
+        }
+        .block-summary-row .bsr-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .block-letter-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 14px;
+        }
+
+        /* Navigasyon */
+        .wizard-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+        }
+        .progress-text {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Tamamlandı ekranı */
+        .success-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .success-screen .success-icon {
+            font-size: 72px;
+            margin-bottom: 20px;
+            animation: bounceIn 0.5s ease-out;
+        }
+        .success-screen h2 {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 12px;
+        }
+        .success-screen p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            margin-bottom: 32px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .add-block-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: var(--bg-input);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 16px 12px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-family: inherit;
+            transition: var(--transition);
+            width: 100%;
+        }
+        .add-block-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-glow);
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard-container">
+        <div class="wizard-header">
+            <div class="logo">🏢</div>
+            <h1>Site Güvenlik — İlk Kurulum</h1>
+            <p>Sistemi kullanmaya başlamak için birkaç bilgiye ihtiyacımız var.</p>
+        </div>
+
+        <!-- Adım göstergesi -->
+        <div class="steps-wrapper" id="stepsWrapper">
+            <div class="step-item">
+                <div class="step-dot active" id="dot1">1</div>
+                <div class="step-label">Site Adı</div>
+            </div>
+            <div class="step-connector" id="conn1"></div>
+            <div class="step-item">
+                <div class="step-dot" id="dot2">2</div>
+                <div class="step-label">Bloklar</div>
+            </div>
+            <div class="step-connector" id="conn2"></div>
+            <div class="step-item">
+                <div class="step-dot" id="dot3">3</div>
+                <div class="step-label">Daire Tipleri</div>
+            </div>
+            <div class="step-connector" id="conn3"></div>
+            <div class="step-item">
+                <div class="step-dot" id="dot4">4</div>
+                <div class="step-label">Özet</div>
+            </div>
+        </div>
+
+        <!-- ADIM 1: Site Adı -->
+        <div id="step1">
+            <div class="wizard-card">
+                <h2>🏢 Site Adı</h2>
+                <p class="subtitle">Sitenizin adını girin. Bu isim bildirim mesajlarında kullanılacak.</p>
+                <div class="form-group">
+                    <label>Site Adı</label>
+                    <input type="text" class="form-control" id="siteName"
+                        placeholder="Örn: Arem Sitesi, Gül Apartmanı, Yıldız Konutları..."
+                        style="font-size: 18px; padding: 16px;">
+                </div>
+                <div class="form-group">
+                    <label>Güvenlik Görevlisi / Şirket Adı (Opsiyonel)</label>
+                    <input type="text" class="form-control" id="securityName"
+                        placeholder="Örn: Arem Güvenlik">
+                </div>
+            </div>
+            <div class="wizard-nav">
+                <span class="progress-text">Adım 1 / 4</span>
+                <button class="btn btn-primary" onclick="goStep(2)">Devam Et →</button>
+            </div>
+        </div>
+
+        <!-- ADIM 2: Bloklar -->
+        <div id="step2" style="display:none">
+            <div class="wizard-card">
+                <h2>🏗️ Blok Yapılandırması</h2>
+                <p class="subtitle">Sitenizdeki blokları ekleyin. Her bloğun adını ve daire sayısını girin.</p>
+                <div class="block-grid" id="blockGrid"></div>
+                <button class="add-block-btn" onclick="addBlock()">
+                    ➕ Yeni Blok Ekle
+                </button>
+            </div>
+            <div class="wizard-nav">
+                <button class="btn btn-outline" onclick="goStep(1)">← Geri</button>
+                <span class="progress-text">Adım 2 / 4</span>
+                <button class="btn btn-primary" onclick="goStep(3)">Devam Et →</button>
+            </div>
+        </div>
+
+        <!-- ADIM 3: Daire Tipleri -->
+        <div id="step3" style="display:none">
+            <div class="wizard-card">
+                <h2>🏠 Daire Tipleri</h2>
+                <p class="subtitle">Sitenizdeki daire tiplerini seçin (birden fazla seçebilirsiniz). Bu bilgi kayıt amaçlıdır.</p>
+                <div class="apt-type-grid" id="aptTypeGrid">
+                    <div class="apt-type-card" data-type="1+0" onclick="toggleAptType(this)">
+                        <span class="type-label">1+0</span>
+                        <span class="type-desc">Stüdyo</span>
+                    </div>
+                    <div class="apt-type-card" data-type="1+1" onclick="toggleAptType(this)">
+                        <span class="type-label">1+1</span>
+                        <span class="type-desc">Küçük daire</span>
+                    </div>
+                    <div class="apt-type-card" data-type="2+1" onclick="toggleAptType(this)">
+                        <span class="type-label">2+1</span>
+                        <span class="type-desc">Orta daire</span>
+                    </div>
+                    <div class="apt-type-card" data-type="3+1" onclick="toggleAptType(this)">
+                        <span class="type-label">3+1</span>
+                        <span class="type-desc">Büyük daire</span>
+                    </div>
+                    <div class="apt-type-card" data-type="4+1" onclick="toggleAptType(this)">
+                        <span class="type-label">4+1</span>
+                        <span class="type-desc">Geniş daire</span>
+                    </div>
+                    <div class="apt-type-card" data-type="5+1" onclick="toggleAptType(this)">
+                        <span class="type-label">5+1</span>
+                        <span class="type-desc">Villa / Çatı katı</span>
+                    </div>
+                    <div class="apt-type-card" data-type="dublex" onclick="toggleAptType(this)">
+                        <span class="type-label">Dubleks</span>
+                        <span class="type-desc">İki katlı</span>
+                    </div>
+                    <div class="apt-type-card" data-type="diger" onclick="toggleAptType(this)">
+                        <span class="type-label">Diğer</span>
+                        <span class="type-desc">Karma tip</span>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>Ek Notlar (Opsiyonel)</label>
+                    <input type="text" class="form-control" id="aptTypeNote"
+                        placeholder="Örn: Zemin katlar dükkan, 1-5 arası 2+1, 6-10 arası 3+1...">
+                </div>
+            </div>
+            <div class="wizard-nav">
+                <button class="btn btn-outline" onclick="goStep(2)">← Geri</button>
+                <span class="progress-text">Adım 3 / 4</span>
+                <button class="btn btn-primary" onclick="goStep(4)">Devam Et →</button>
+            </div>
+        </div>
+
+        <!-- ADIM 4: Özet -->
+        <div id="step4" style="display:none">
+            <div class="wizard-card">
+                <h2>✅ Kurulum Özeti</h2>
+                <p class="subtitle">Bilgileri kontrol edin ve kurulumu tamamlayın.</p>
+
+                <div class="summary-grid" id="summaryGrid"></div>
+
+                <h3 style="font-size:15px; font-weight:600; margin-bottom:12px; color:var(--text-secondary);">
+                    BLOK DETAYLARI
+                </h3>
+                <div class="block-summary-list" id="blockSummaryList"></div>
+            </div>
+
+            <div class="alert-banner warning" id="setupWarning" style="display:none; margin-bottom:16px;">
+                ⚠️ Lütfen tüm zorunlu alanları doldurun.
+            </div>
+
+            <div class="wizard-nav">
+                <button class="btn btn-outline" onclick="goStep(3)">← Geri</button>
+                <span class="progress-text">Adım 4 / 4</span>
+                <button class="btn btn-success btn-lg" id="completeBtn" onclick="completeSetup()">
+                    🚀 Kurulumu Tamamla
+                </button>
+            </div>
+        </div>
+
+        <!-- TAMAMLANDI -->
+        <div id="stepDone" style="display:none">
+            <div class="wizard-card">
+                <div class="success-screen">
+                    <div class="success-icon">🎉</div>
+                    <h2>Kurulum Tamamlandı!</h2>
+                    <p>
+                        Sisteminiz başarıyla yapılandırıldı.<br>
+                        Masaüstüne kısayol oluşturuluyor...
+                    </p>
+                    <div id="shortcutStatus" style="margin-bottom: 24px; font-size: 14px; color: var(--text-secondary);"></div>
+                    <button class="btn btn-primary btn-lg" onclick="goHome()">
+                        🏢 Sisteme Gir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toasts"></div>
+
+    <script>
+        // ==================== VERİ ====================
+        let blocks = [];
+        let selectedAptTypes = [];
+        let blockCounter = 0;
+
+        // Harf üretici — A, B, C... Z, AA, AB...
+        function getNextLetter() {
+            const used = blocks.map(b => b.letter);
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+            for (const l of letters) {
+                if (!used.includes(l)) return l;
+            }
+            // 26'dan fazla blok: AA, AB...
+            for (const l1 of letters) {
+                for (const l2 of letters) {
+                    const combo = l1 + l2;
+                    if (!used.includes(combo)) return combo;
+                }
+            }
+            return 'Z' + blocks.length;
+        }
+
+        // ==================== ADIM YÖNETİMİ ====================
+        let currentStep = 1;
+
+        function goStep(step) {
+            // Validasyon
+            if (step > currentStep) {
+                if (!validateStep(currentStep)) return;
+            }
+
+            // Mevcut adımı gizle
+            document.getElementById(`step${currentStep}`).style.display = 'none';
+
+            // Adım 4'e geçerken özeti güncelle
+            if (step === 4) buildSummary();
+
+            currentStep = step;
+            const el = document.getElementById(`step${step}`);
+            if (el) {
+                el.style.display = 'block';
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            updateStepIndicator();
+        }
+
+        function updateStepIndicator() {
+            for (let i = 1; i <= 4; i++) {
+                const dot = document.getElementById(`dot${i}`);
+                dot.classList.remove('active', 'done');
+                if (i < currentStep) dot.classList.add('done'), dot.textContent = '✓';
+                else if (i === currentStep) dot.classList.add('active'), dot.textContent = i;
+                else dot.textContent = i;
+            }
+            for (let i = 1; i <= 3; i++) {
+                const conn = document.getElementById(`conn${i}`);
+                conn.classList.toggle('done', i < currentStep);
+            }
+        }
+
+        function validateStep(step) {
+            if (step === 1) {
+                const name = document.getElementById('siteName').value.trim();
+                if (!name) {
+                    showToast('Site adı zorunludur!', 'error');
+                    document.getElementById('siteName').focus();
+                    return false;
+                }
+            }
+            if (step === 2) {
+                if (blocks.length === 0) {
+                    showToast('En az bir blok eklemelisiniz!', 'error');
+                    return false;
+                }
+                for (const b of blocks) {
+                    if (!b.apartmentCount || b.apartmentCount < 1) {
+                        showToast(`${b.letter} bloğu için daire sayısı girilmemiş!`, 'error');
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        // ==================== BLOK YÖNETİMİ ====================
+
+        function addBlock() {
+            const letter = getNextLetter();
+            const id = ++blockCounter;
+            blocks.push({ id, letter, name: `${letter} Blok`, apartmentCount: 0 });
+            renderBlocks();
+        }
+
+        function removeBlock(id) {
+            blocks = blocks.filter(b => b.id !== id);
+            renderBlocks();
+        }
+
+        function renderBlocks() {
+            const grid = document.getElementById('blockGrid');
+            if (blocks.length === 0) {
+                grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-muted);padding:20px;">
+                    Henüz blok eklenmedi. Aşağıdaki butona tıklayın.
+                </div>`;
+                return;
+            }
+            grid.innerHTML = blocks.map(b => `
+                <div class="block-card selected">
+                    <button class="remove-btn" onclick="removeBlock(${b.id})" title="Bloğu Kaldır">✕</button>
+                    <span class="block-letter">${b.letter}</span>
+                    <input class="block-name-input"
+                        value="${b.name}"
+                        placeholder="Blok adı..."
+                        oninput="updateBlock(${b.id}, 'name', this.value)"
+                        title="Blok adını düzenle">
+                    <div class="apt-count">
+                        <input type="number" min="1" max="999"
+                            value="${b.apartmentCount || ''}"
+                            placeholder="0"
+                            oninput="updateBlock(${b.id}, 'apartmentCount', parseInt(this.value)||0)"
+                            title="Daire sayısı">
+                        <label>daire</label>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateBlock(id, field, value) {
+            const b = blocks.find(b => b.id === id);
+            if (b) b[field] = value;
+        }
+
+        // ==================== DAİRE TİPİ ====================
+
+        function toggleAptType(el) {
+            const type = el.dataset.type;
+            el.classList.toggle('selected');
+            if (el.classList.contains('selected')) {
+                if (!selectedAptTypes.includes(type)) selectedAptTypes.push(type);
+            } else {
+                selectedAptTypes = selectedAptTypes.filter(t => t !== type);
+            }
+        }
+
+        // ==================== ÖZET ====================
+
+        function buildSummary() {
+            const siteName = document.getElementById('siteName').value.trim();
+            const secName  = document.getElementById('securityName').value.trim();
+            const totalApts = blocks.reduce((s, b) => s + (b.apartmentCount || 0), 0);
+
+            document.getElementById('summaryGrid').innerHTML = `
+                <div class="summary-item">
+                    <div class="s-label">Site Adı</div>
+                    <div class="s-value">${siteName || '—'}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="s-label">Güvenlik Adı</div>
+                    <div class="s-value">${secName || 'Güvenlik'}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="s-label">Toplam Blok</div>
+                    <div class="s-value">${blocks.length}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="s-label">Toplam Daire</div>
+                    <div class="s-value">${totalApts}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="s-label">Daire Tipleri</div>
+                    <div class="s-value" style="font-size:13px">${selectedAptTypes.length > 0 ? selectedAptTypes.join(', ') : '—'}</div>
+                </div>
+            `;
+
+            document.getElementById('blockSummaryList').innerHTML = blocks.map(b => `
+                <div class="block-summary-row">
+                    <div class="bsr-left">
+                        <div class="block-letter-badge">${b.letter}</div>
+                        <div>
+                            <div style="font-weight:600">${b.name}</div>
+                            <div style="font-size:12px;color:var(--text-muted)">${b.apartmentCount} daire</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-success">✓ Hazır</span>
+                </div>
+            `).join('');
+        }
+
+        // ==================== KURULUMU TAMAMLA ====================
+
+        async function completeSetup() {
+            const siteName   = document.getElementById('siteName').value.trim();
+            const secName    = document.getElementById('securityName').value.trim() || 'Güvenlik';
+            const aptTypeNote = document.getElementById('aptTypeNote').value.trim();
+
+            if (!siteName || blocks.length === 0) {
+                document.getElementById('setupWarning').style.display = 'flex';
+                showToast('Lütfen tüm zorunlu alanları doldurun!', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('completeBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Kaydediliyor...';
+
+            // Blok config objesi oluştur
+            const blockConfig = {};
+            blocks.forEach(b => {
+                const blokAdi = (b.name && b.name.trim()) ? b.name.trim() : b.letter;
+                blockConfig[blokAdi] = b.apartmentCount;
+            });
+
+            try {
+                const resp = await fetch('/api/setup/complete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        site_name: siteName,
+                        security_name: secName,
+                        blocks: blockConfig,
+                        apt_types: selectedAptTypes,
+                        apt_type_note: aptTypeNote
+                    })
+                });
+
+                const result = await resp.json();
+                if (!resp.ok) throw new Error(result.error || 'Kurulum tamamlanamadı');
+
+                // Başarılı — tamamlandı ekranını göster
+                document.getElementById('step4').style.display = 'none';
+                document.getElementById('stepDone').style.display = 'block';
+                document.getElementById('stepsWrapper').style.display = 'none';
+
+                // Masaüstü kısayolu oluştur
+                await createShortcut(siteName);
+
+            } catch (err) {
+                showToast('Hata: ' + err.message, 'error');
+                btn.disabled = false;
+                btn.textContent = '🚀 Kurulumu Tamamla';
+            }
+        }
+
+        async function createShortcut(siteName) {
+            const statusEl = document.getElementById('shortcutStatus');
+            statusEl.textContent = '⏳ Masaüstü kısayolu oluşturuluyor...';
+            try {
+                const resp = await fetch('/api/setup/shortcut', { method: 'POST' });
+                const result = await resp.json();
+                if (result.success) {
+                    statusEl.innerHTML = '✅ Masaüstü kısayolu oluşturuldu!';
+                } else {
+                    statusEl.innerHTML = '⚠️ Kısayol oluşturulamadı, manuel ekleyebilirsiniz.';
+                }
+            } catch (e) {
+                statusEl.innerHTML = '⚠️ Kısayol servisi yanıt vermedi.';
+            }
+        }
+
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        // ==================== YARDIMCILAR ====================
+
+        function showToast(msg, type = 'info') {
+            const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+            const container = document.getElementById('toasts');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `${icons[type] || ''} ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3500);
+        }
+
+        // ==================== BAŞLANGIÇ ====================
+        // İlk blokları hazır getirme (opsiyonel — boş başla)
+        renderBlocks();
+    </script>
+</body>
+</html>

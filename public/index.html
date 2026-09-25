@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Güvenlik - Giriş Kayıt</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo"><span>🏢</span> Site Güvenlik</div>
+    <ul class="nav-links">
+      <li><a href="/" class="active">🚪 Giriş Kayıt</a></li>
+      <li><a href="/admin.html">⚙️ Yönetim</a></li>
+      <li><a href="/logs.html">📋 Loglar</a></li>
+      <li><a href="/whatsapp.html">📱 WhatsApp</a></li>
+            <li><a href="/assistant.html">🤖 Asistan</a></li>
+    </ul>
+    <div style="margin-left:auto" id="waStatus"></div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>🚪 Giriş Kayıt Paneli</h1>
+      <p>Siteye giriş yapan kişinin bilgilerini girin</p>
+    </div>
+
+    <div id="waAlert"></div>
+
+    <!-- Step 1: Entry Type -->
+    <div class="card">
+      <div class="card-header">
+        <h2>1️⃣ Giriş Tipi Seçin</h2>
+      </div>
+      <div class="entry-types" id="entryTypeGrid">
+        <div class="entry-type-card" data-type="kurye" onclick="selectType('kurye')" draggable="true">
+          <span class="icon">🍕</span>
+          <span class="label">Yemek Kuryesi</span>
+          <span class="desc">Yemek siparişi teslimatı</span>
+        </div>
+        <div class="entry-type-card" data-type="kargo" onclick="selectType('kargo')" draggable="true">
+          <span class="icon">📦</span>
+          <span class="label">Kargo</span>
+          <span class="desc">Kargo / paket teslimatı</span>
+        </div>
+        <div class="entry-type-card" data-type="toplu_kargo" onclick="topluKargoAc()" draggable="true" style="cursor:pointer;">
+          <span class="icon">📦📦</span>
+          <span class="label">Toplu Kargo</span>
+          <span class="desc">Birden fazla daireye</span>
+        </div>
+        <div class="entry-type-card" data-type="misafir" onclick="selectType('misafir')" draggable="true">
+          <span class="icon">👤</span>
+          <span class="label">Misafir</span>
+          <span class="desc">Kişisel ziyaretçi</span>
+        </div>
+        <div class="entry-type-card" data-type="servis" onclick="selectType('servis')" draggable="true">
+          <span class="icon">🛠️</span>
+          <span class="label">Teknik Servis</span>
+          <span class="desc">İnternet, tesisat, elektrik, tamir</span>
+        </div>
+        <div class="entry-type-card" data-type="beyaz_esya" onclick="selectType('beyaz_esya')" draggable="true">
+          <span class="icon">📦</span>
+          <span class="label">Beyaz Eşya</span>
+          <span class="desc">Buzdolabı, Çamaşır Mak., Bulaşık Mak. vb.</span>
+        </div>
+        <div class="entry-type-card" data-type="mobilya" onclick="selectType('mobilya')" draggable="true">
+          <span class="icon">🛋️</span>
+          <span class="label">Mobilya</span>
+          <span class="desc">Koltuk, Masa, Dolap vb. kurulum/sevkiyat</span>
+        </div>
+        <div class="entry-type-card" data-type="hali_yikama" onclick="selectType('hali_yikama')" draggable="true">
+          <span class="icon">🧺</span>
+          <span class="label">Halı Yıkama</span>
+          <span class="desc">Teslimat / Alım</span>
+        </div>
+        <div class="entry-type-card" data-type="market" onclick="selectType('market')" draggable="true">
+          <span class="icon">🛒</span>
+          <span class="label">Market Kuryesi</span>
+          <span class="desc">Migros, A101, Bim, Şok, Getir</span>
+        </div>
+        <div class="entry-type-card" data-type="eczane" onclick="selectType('eczane')" draggable="true">
+          <span class="icon">💊</span>
+          <span class="label">Eczane Kuryesi</span>
+          <span class="desc">Eczane / ilaç teslimatı</span>
+        </div>
+        <div class="entry-type-card" data-type="temizlik" onclick="selectType('temizlik')" draggable="true">
+          <span class="icon">🧹</span>
+          <span class="label">Temizlik Görevlisi</span>
+          <span class="desc">Temizlik hizmeti</span>
+        </div>
+        <div class="entry-type-card" data-type="perde" onclick="selectType('perde')" draggable="true">
+          <span class="icon">🧶</span>
+          <span class="label">PERDE</span>
+          <span class="desc">Perde / Dekorasyon hizmeti</span>
+        </div>
+        <div class="entry-type-card" data-type="emanet" onclick="selectType('emanet')" draggable="true">
+          <span class="icon">🎁</span>
+          <span class="label">Emanet Eşya</span>
+          <span class="desc">Kulübeye bırakılan paket/eşya</span>
+        </div>
+        <div class="entry-type-card" data-type="olay" onclick="selectType('olay')" draggable="true">
+          <span class="icon">🚨</span>
+          <span class="label">Olay / Vaka</span>
+          <span class="desc">Şüpheli durum, şikayet, arıza</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Block Selection -->
+    <div class="card" id="blockSection" style="opacity:0.4; pointer-events:none;">
+      <div class="card-header">
+        <h2>2️⃣ Blok Seçin</h2>
+      </div>
+      <div class="block-selector" id="blockSelector"></div>
+    </div>
+
+    <!-- Step 3: Apartment Selection -->
+    <div class="card" id="aptSection" style="opacity:0.4; pointer-events:none;">
+      <div class="card-header">
+        <h2>3️⃣ Daire Seçin</h2>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Daire No</label>
+          <select class="form-control" id="aptSelect" onchange="selectApartment()">
+            <option value="">Daire seçin...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Sakin Bilgisi</label>
+          <input type="text" class="form-control" id="residentInfo" readonly
+            placeholder="Daire seçilince otomatik dolacak">
+        </div>
+      </div>
+      <div class="form-group" id="visitorNameGroup" style="display:none">
+        <label>Misafir Adı (opsiyonel)</label>
+        <input type="text" class="form-control" id="visitorName" placeholder="Misafirin adını girin...">
+      </div>
+    </div>
+
+    <!-- Olay/Vaka Formu -->
+    <div class="card" id="olaySection" style="display:none;">
+      <div class="card-header">
+        <h2>🚨 Olay / Vaka Bilgileri</h2>
+      </div>
+      <div class="form-group">
+        <label>Olay Tipi</label>
+        <select class="form-control" id="olayType" onchange="checkReady()">
+          <option value="">Seçin...</option>
+          <option value="supheli">🕵️ Şüpheli Durum</option>
+          <option value="gurultu">🔊 Gürültü Şikayeti</option>
+          <option value="park">🚗 Park İhlali</option>
+          <option value="ariza">🔧 Arıza / Hasar</option>
+          <option value="kavga">⚠️ Kavga / Tartışma</option>
+          <option value="hirsizlik">🔒 Hırsızlık / Kayıp</option>
+          <option value="acil">🚨 Acil Durum</option>
+          <option value="olum">⚫ Ölüm</option>
+          <option value="intihar">🆘 İntihar</option>
+          <option value="diger">📝 Diğer</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Konum</label>
+        <input type="text" class="form-control" id="olayLocation"
+          placeholder="Örn: A Blok otopark girişi, bahçe, asansör..." onkeyup="checkReady()">
+      </div>
+      <div class="form-group">
+        <label>Açıklama</label>
+        <textarea class="form-control" id="olayDescription" rows="3" placeholder="Olayı kısaca açıklayın..."
+          onkeyup="checkReady()" style="resize:vertical;min-height:80px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Öncelik</label>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm" id="priLow" onclick="setPriority('dusuk')"
+            style="flex:1;background:#27ae60;color:white;">🟢 Düşük</button>
+          <button class="btn btn-sm" id="priNormal" onclick="setPriority('normal')"
+            style="flex:1;background:#f39c12;color:white;opacity:0.6;">🟡 Normal</button>
+          <button class="btn btn-sm" id="priUrgent" onclick="setPriority('acil')"
+            style="flex:1;background:#e74c3c;color:white;opacity:0.6;">🔴 Acil</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <button class="btn btn-success btn-lg btn-block" id="submitBtn" onclick="submitEntry()" disabled>
+      ✅ Giriş Kaydını Oluştur ve Bildirim Gönder
+    </button>
+
+    <!-- Result Panel -->
+    <div class="result-panel" id="resultPanel">
+      <h3>✅ Giriş Kaydedildi</h3>
+      <div class="detail"><span class="label">Tip:</span> <span id="resType"></span></div>
+      <div class="detail"><span class="label">Blok/Daire:</span> <span id="resBlock"></span></div>
+      <div class="detail"><span class="label">Sakin:</span> <span id="resName"></span></div>
+      <div class="detail"><span class="label">WhatsApp:</span> <span id="resWa"></span></div>
+      <div class="detail" id="resVoiceRow" style="display:none"><span class="label">Sesli Mesaj:</span> <span
+          id="resVoice"></span></div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toasts"></div>
+
+  <script>
+    let selectedType = null;
+    let selectedBlock = null;
+    let selectedApt = null;
+    let blockConfig = {};
+    let residents = [];
+    let selectedPriority = 'dusuk';
+
+    // Load block config & check WhatsApp status on page load
+    async function init() {
+      loadSavedOrder();
+      const bc = await fetch('/api/blocks').then(r => r.json());
+      blockConfig = bc;
+      renderBlocks();
+      checkWhatsApp();
+      initDragAndDrop();
+    }
+
+    // Drag and Drop Logic
+    function initDragAndDrop() {
+      const grid = document.getElementById('entryTypeGrid');
+      let draggedItem = null;
+
+      grid.querySelectorAll('.entry-type-card').forEach(card => {
+        card.addEventListener('dragstart', (e) => {
+          draggedItem = card;
+          e.dataTransfer.effectAllowed = 'move';
+          card.style.opacity = '0.5';
+          card.classList.add('dragging');
+        });
+
+        card.addEventListener('dragend', () => {
+          draggedItem = null;
+          card.style.opacity = '1';
+          card.classList.remove('dragging');
+          saveOrder();
+        });
+
+        card.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          const targetCard = e.target.closest('.entry-type-card');
+          if (targetCard && targetCard !== draggedItem) {
+            const rect = targetCard.getBoundingClientRect();
+            const next = (e.clientY - rect.top) / (rect.bottom - rect.top) > 0.5;
+            grid.insertBefore(draggedItem, next ? targetCard.nextSibling : targetCard);
+          }
+        });
+      });
+    }
+
+    function saveOrder() {
+      const order = Array.from(document.querySelectorAll('.entry-type-card')).map(c => c.dataset.type);
+      localStorage.setItem('entryTypeOrder', JSON.stringify(order));
+    }
+
+    function loadSavedOrder() {
+      const saved = localStorage.getItem('entryTypeOrder');
+      if (saved) {
+        const order = JSON.parse(saved);
+        const grid = document.getElementById('entryTypeGrid');
+        const cards = Array.from(grid.querySelectorAll('.entry-type-card'));
+        order.forEach(type => {
+          const card = cards.find(c => c.dataset.type === type);
+          if (card) grid.appendChild(card);
+        });
+      }
+    }
+
+    // Check WhatsApp status
+    async function checkWhatsApp() {
+      try {
+        const st = await fetch('/api/whatsapp/status').then(r => r.json());
+        const el = document.getElementById('waStatus');
+        el.innerHTML = `<span class="status-dot ${st.isReady ? 'online' : 'offline'}"></span>${st.isReady ? 'WhatsApp Bağlı' : 'Bağlı Değil'}`;
+
+        const alertEl = document.getElementById('waAlert');
+        if (!st.isReady) {
+          alertEl.innerHTML = `<div class="alert-banner warning">⚠️ WhatsApp bağlı değil. Bildirim gönderilemez. <a href="/whatsapp.html" style="color:var(--accent);margin-left:8px;">Bağlan →</a></div>`;
+        } else {
+          alertEl.innerHTML = '';
+        }
+      } catch (e) { }
+    }
+
+    // Render blocks
+    function renderBlocks() {
+      const el = document.getElementById('blockSelector');
+      el.innerHTML = Object.entries(blockConfig).map(([block, count]) => `
+        <button class="block-btn" data-block="${block}" onclick="selectBlock('${block}')">
+          <span class="block-letter">${block}</span>
+          <span class="block-info">${count} Daire</span>
+        </button>
+      `).join('');
+    }
+
+    // Select entry type
+    function selectType(type) {
+      if (type === 'toplu_kargo') return;
+      selectedType = type;
+      document.querySelectorAll('.entry-type-card').forEach(c => c.classList.remove('selected'));
+      document.querySelector(`[data-type="${type}"]`).classList.add('selected');
+
+      const isOlay = type === 'olay';
+      // Olay seçilince normal formu gizle, olay formunu göster
+      document.getElementById('blockSection').style.display = isOlay ? 'none' : '';
+      document.getElementById('aptSection').style.display = isOlay ? 'none' : '';
+      document.getElementById('olaySection').style.display = isOlay ? '' : 'none';
+      document.getElementById('submitBtn').textContent = isOlay ? '🚨 Olayı Kaydet' : '✅ Giriş Kaydını Oluştur ve Bildirim Gönder';
+
+      if (!isOlay) {
+        document.getElementById('blockSection').style.opacity = '1';
+        document.getElementById('blockSection').style.pointerEvents = 'all';
+      }
+
+      // Dinamik isim/içerik alanı
+      const nameGroup = document.getElementById('visitorNameGroup');
+      const nameLabel = nameGroup.querySelector('label');
+      const nameInput = document.getElementById('visitorName');
+
+      if (type === 'misafir') {
+        nameGroup.style.display = 'block';
+        nameLabel.textContent = 'Misafir Adı (opsiyonel)';
+        nameInput.placeholder = 'Misafirin adını girin...';
+      } else if (type === 'emanet') {
+        nameGroup.style.display = 'block';
+        nameLabel.textContent = 'Emanet İçeriği (ilaç, paket vb.)';
+        nameInput.placeholder = 'Örn: İlaç, paket, anahtar...';
+      } else {
+        nameGroup.style.display = 'none';
+        nameInput.value = '';
+      }
+
+      checkReady();
+    }
+
+    // Set priority for incident
+    function setPriority(level) {
+      selectedPriority = level;
+      document.getElementById('priLow').style.opacity = level === 'dusuk' ? '1' : '0.6';
+      document.getElementById('priNormal').style.opacity = level === 'normal' ? '1' : '0.6';
+      document.getElementById('priUrgent').style.opacity = level === 'acil' ? '1' : '0.6';
+      checkReady();
+    }
+
+    // Select block
+    async function selectBlock(block) {
+      selectedBlock = block;
+      selectedApt = null;
+      document.querySelectorAll('.block-btn').forEach(b => b.classList.remove('selected'));
+      document.querySelector(`[data-block="${block}"]`).classList.add('selected');
+
+      // Enable apartment section
+      document.getElementById('aptSection').style.opacity = '1';
+      document.getElementById('aptSection').style.pointerEvents = 'all';
+
+      // Load residents for this block
+      residents = await fetch(`/api/residents?block=${block}`).then(r => r.json());
+
+      // Populate apartment dropdown
+      const sel = document.getElementById('aptSelect');
+      const count = blockConfig[block];
+      sel.innerHTML = '<option value="">Daire seçin...</option>';
+      for (let i = 1; i <= count; i++) {
+        const res = residents.find(r => r.apartment_no === i);
+        sel.innerHTML += `<option value="${i}">${i}. Daire${res ? ' - ' + res.name : ' (kayıtsız)'}</option>`;
+      }
+      document.getElementById('residentInfo').value = '';
+      checkReady();
+    }
+
+    // Select apartment
+    function selectApartment() {
+      const val = document.getElementById('aptSelect').value;
+      if (!val) { selectedApt = null; checkReady(); return; }
+      selectedApt = parseInt(val);
+      const res = residents.find(r => r.apartment_no === selectedApt);
+      document.getElementById('residentInfo').value = res ? `${res.name} — ${res.phone}` : 'Bu dairede kayıtlı sakin yok!';
+      checkReady();
+    }
+
+    // Check if form is ready
+    function checkReady() {
+      if (selectedType === 'olay') {
+        const olayType = document.getElementById('olayType').value;
+        const olayLoc = document.getElementById('olayLocation').value.trim();
+        const olayDesc = document.getElementById('olayDescription').value.trim();
+        document.getElementById('submitBtn').disabled = !(olayType && olayLoc && olayDesc);
+      } else {
+        const res = residents.find(r => r.apartment_no === selectedApt);
+        document.getElementById('submitBtn').disabled = !(selectedType && selectedBlock && selectedApt && res);
+      }
+    }
+
+    // Submit entry
+    // ==================== TOPLU KARGO (v2 — profesyonel) ====================
+    let topluKargoSecilenler = new Map(); // key: "block|apt", value: {block, apt, name}
+
+    function topluKargoAc() {
+      topluKargoSecilenler.clear();
+      document.getElementById('topluKargoArama').value = '';
+      document.getElementById('topluKargoSonuc').style.display = 'none';
+      topluKargoListeYukle();
+      topluKargoSecilenleriGoster();
+      topluKargoSayacGuncelle();
+      document.getElementById('topluKargoModal').style.display = 'flex';
+    }
+
+    function topluKargoKapat() {
+      document.getElementById('topluKargoModal').style.display = 'none';
+    }
+
+    let topluKargoTumSakinler = [];
+
+    async function topluKargoListeYukle() {
+      const liste = document.getElementById('topluKargoListe');
+      liste.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">Yükleniyor...</div>';
+      try {
+        const tumSakinler = await fetch('/api/residents').then(r => r.json());
+        if (!tumSakinler || tumSakinler.length === 0) {
+          liste.innerHTML = '<div style="text-align:center; color:#888; padding:20px;">Kayıtlı daire bulunamadı.</div>';
+          return;
+        }
+        tumSakinler.sort((a, b) => {
+          if (a.block !== b.block) return a.block.localeCompare(b.block);
+          return a.apartment_no - b.apartment_no;
+        });
+        topluKargoTumSakinler = tumSakinler;
+        topluKargoListeRender();
+      } catch (e) {
+        liste.innerHTML = '<div style="text-align:center; color:#e74c3c; padding:20px;">Liste yüklenemedi.</div>';
+      }
+    }
+
+    function topluKargoListeRender() {
+      const liste = document.getElementById('topluKargoListe');
+      liste.innerHTML = topluKargoTumSakinler.map(r => {
+        const key = `${r.block}|${r.apartment_no}`;
+        const secili = topluKargoSecilenler.has(key);
+        return `
+          <label class="tk-satir" data-key="${key}" data-arama="${(r.name + ' ' + r.block + ' ' + r.apartment_no + ' ' + r.block + '-' + r.apartment_no).toLowerCase()}"
+            style="display:flex; align-items:center; gap:10px; padding:10px; border-radius:6px; cursor:pointer; margin-bottom:4px; background:${secili ? 'rgba(74,158,255,0.15)' : ''};">
+            <input type="checkbox" value="${key}" ${secili ? 'checked' : ''} onchange="topluKargoSecim(this, '${r.block}', ${r.apartment_no}, '${(r.name||'').replace(/'/g, "\\'")}')"
+              style="width:18px; height:18px; cursor:pointer;">
+            <span style="font-weight:bold; color:var(--accent,#4a9eff); min-width:60px;">${r.block}-${r.apartment_no}</span>
+            <span style="color:var(--text,#fff); flex:1;">${r.name}</span>
+            <span style="color:var(--text-muted,#888); font-size:12px;">${r.phone || ''}</span>
+          </label>
+        `;
+      }).join('');
+    }
+
+    function topluKargoSecim(checkbox, block, apt, name) {
+      const key = `${block}|${apt}`;
+      if (checkbox.checked) {
+        topluKargoSecilenler.set(key, { block, apt, name });
+        checkbox.closest('.tk-satir').style.background = 'rgba(74,158,255,0.15)';
+      } else {
+        topluKargoSecilenler.delete(key);
+        checkbox.closest('.tk-satir').style.background = '';
+      }
+      topluKargoSecilenleriGoster();
+      topluKargoSayacGuncelle();
+    }
+
+    // Seçilen daireleri üstte etiket olarak göster
+    function topluKargoSecilenleriGoster() {
+      const kutu = document.getElementById('topluKargoSecilenKutu');
+      if (topluKargoSecilenler.size === 0) {
+        kutu.style.display = 'none';
+        kutu.innerHTML = '';
+        return;
+      }
+      kutu.style.display = 'flex';
+      kutu.innerHTML = Array.from(topluKargoSecilenler.entries()).map(([key, v]) => `
+        <span style="display:inline-flex; align-items:center; gap:6px; background:var(--accent,#4a9eff); color:#fff; padding:4px 10px; border-radius:20px; font-size:13px; font-weight:500;">
+          ${v.block}-${v.apt}
+          <span onclick="topluKargoEtiketKaldir('${key}')" style="cursor:pointer; font-weight:bold; font-size:16px; line-height:1;">&times;</span>
+        </span>
+      `).join('');
+    }
+
+    function topluKargoEtiketKaldir(key) {
+      topluKargoSecilenler.delete(key);
+      // Listedeki checkbox'ı da güncelle
+      const satir = document.querySelector(`.tk-satir[data-key="${key}"]`);
+      if (satir) {
+        const cb = satir.querySelector('input[type=checkbox]');
+        if (cb) cb.checked = false;
+        satir.style.background = '';
+      }
+      topluKargoSecilenleriGoster();
+      topluKargoSayacGuncelle();
+    }
+
+    function topluKargoSayacGuncelle() {
+      const sayi = topluKargoSecilenler.size;
+      document.getElementById('topluKargoSayac').textContent = `${sayi} daire seçildi`;
+      const btn = document.getElementById('topluKargoGonderBtn');
+      btn.disabled = sayi === 0;
+      btn.style.opacity = sayi === 0 ? '0.5' : '1';
+      btn.textContent = sayi === 0 ? 'Seçilenlere Gönder' : `Seçilenlere Gönder (${sayi})`;
+    }
+
+    function topluKargoFiltrele() {
+      // Arama terimini sadeleştir: boşluk ve tireleri kaldır
+      const ham = document.getElementById('topluKargoArama').value.toLowerCase().trim();
+      const q = ham.replace(/[\s\-]/g, '');
+      document.querySelectorAll('.tk-satir').forEach(satir => {
+        const aramaHam = satir.getAttribute('data-arama');
+        const arama = aramaHam.replace(/[\s\-]/g, '');
+        satir.style.display = (!q || arama.includes(q)) ? 'flex' : 'none';
+      });
+    }
+
+    function topluKargoTumunuTemizle() {
+      topluKargoSecilenler.clear();
+      document.querySelectorAll('#topluKargoListe input[type=checkbox]').forEach(cb => {
+        cb.checked = false;
+        cb.closest('.tk-satir').style.background = '';
+      });
+      topluKargoSecilenleriGoster();
+      topluKargoSayacGuncelle();
+    }
+
+    async function topluKargoGonder() {
+      if (topluKargoSecilenler.size === 0) return;
+      const btn = document.getElementById('topluKargoGonderBtn');
+      const sonucDiv = document.getElementById('topluKargoSonuc');
+      btn.disabled = true;
+      btn.textContent = '⏳ Gönderiliyor...';
+
+      const secilenler = Array.from(topluKargoSecilenler.values());
+      let basarili = 0, basarisiz = 0;
+      const sonuclar = [];
+
+      for (const item of secilenler) {
+        try {
+          const resp = await fetch('/api/entry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'kargo',
+              block: item.block,
+              apartment_no: item.apt,
+              visitor_name: ''
+            })
+          });
+          const data = await resp.json();
+          if (resp.ok && data.success) {
+            basarili++;
+            sonuclar.push(`✅ ${item.block}-${item.apt} (${data.resident || '-'})`);
+          } else {
+            basarisiz++;
+            sonuclar.push(`❌ ${item.block}-${item.apt}: ${data.error || 'hata'}`);
+          }
+        } catch (e) {
+          basarisiz++;
+          sonuclar.push(`❌ ${item.block}-${item.apt}: bağlantı hatası`);
+        }
+      }
+
+      sonucDiv.style.display = 'block';
+      sonucDiv.innerHTML = `
+        <div style="font-weight:bold; margin-bottom:8px;">Tamamlandı: ${basarili} başarılı, ${basarisiz} başarısız</div>
+        ${sonuclar.join('<br>')}
+      `;
+
+      btn.textContent = 'Tekrar Gönder';
+      btn.disabled = false;
+
+      if (basarisiz === 0) {
+        setTimeout(() => {
+          topluKargoTumunuTemizle();
+          sonucDiv.style.display = 'none';
+        }, 3000);
+      }
+    }
+
+    async function submitEntry() {
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Gönderiliyor...';
+
+      try {
+        // Olay kaydı mı?
+        if (selectedType === 'olay') {
+          const body = {
+            olay_type: document.getElementById('olayType').value,
+            location: document.getElementById('olayLocation').value.trim(),
+            description: document.getElementById('olayDescription').value.trim(),
+            priority: selectedPriority
+          };
+          const resp = await fetch('/api/incident', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          const data = await resp.json();
+          if (!resp.ok) { showToast(data.error, 'error'); return; }
+          showToast('🚨 Olay kaydedildi!', 'success');
+          document.getElementById('olayType').value = '';
+          document.getElementById('olayLocation').value = '';
+          document.getElementById('olayDescription').value = '';
+          selectedPriority = 'dusuk';
+          setPriority('dusuk');
+          btn.textContent = '🚨 Olayı Kaydet';
+          btn.disabled = true;
+          return;
+        }
+
+        const body = {
+          type: selectedType,
+          block: selectedBlock,
+          apartment_no: selectedApt,
+          visitor_name: document.getElementById('visitorName')?.value || ''
+        };
+
+        const resp = await fetch('/api/entry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) {
+          showToast(data.error, 'error');
+          return;
+        }
+
+        // Show result
+        const typeLabels = {
+          kurye: '🍕 Yemek Kuryesi',
+          kargo: '📦 Kargo',
+          misafir: '👤 Misafir',
+          servis: '🛠️ Teknik Servis',
+          beyaz_esya: 'Beyaz Eşya / Mobilya',
+          hali_yikama: 'Halı Yıkama'
+        };
+        document.getElementById('resType').textContent = typeLabels[selectedType];
+        document.getElementById('resBlock').textContent = `${selectedBlock} Blok - Daire ${selectedApt}`;
+        document.getElementById('resName').textContent = data.resident;
+        document.getElementById('resWa').innerHTML = `
+          1: ${data.whatsapp?.success ? '✅' : '❌'} 
+          ${data.whatsapp2?.success !== undefined ? `| 2: ${data.whatsapp2.success ? '✅' : '❌'}` : ''}
+          ${data.whatsapp3?.success !== undefined ? `| 3: ${data.whatsapp3.success ? '✅' : '❌'}` : ''}
+        `;
+
+        if (selectedType === 'misafir') {
+          document.getElementById('resVoiceRow').style.display = 'flex';
+          document.getElementById('resVoice').innerHTML = `
+            1: ${data.voice?.success ? '✅' : '❌'}
+            ${data.voice2?.success !== undefined ? `| 2: ${data.voice2.success ? '✅' : '❌'}` : ''}
+            ${data.voice3?.success !== undefined ? `| 3: ${data.voice3.success ? '✅' : '❌'}` : ''}
+          `;
+        } else {
+          document.getElementById('resVoiceRow').style.display = 'none';
+        }
+
+        const panel = document.getElementById('resultPanel');
+        panel.classList.add('show');
+        showToast('Giriş kaydedildi ve bildirim gönderildi!', 'success');
+
+        // Reset after 5 seconds
+        setTimeout(resetForm, 5000);
+      } catch (e) {
+        showToast('Hata: ' + e.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✅ Giriş Kaydını Oluştur ve Bildirim Gönder';
+      }
+    }
+
+    // Reset form
+    function resetForm() {
+      selectedType = null;
+      selectedBlock = null;
+      selectedApt = null;
+      document.querySelectorAll('.entry-type-card').forEach(c => c.classList.remove('selected'));
+      document.querySelectorAll('.block-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('blockSection').style.opacity = '0.4';
+      document.getElementById('blockSection').style.pointerEvents = 'none';
+      document.getElementById('aptSection').style.opacity = '0.4';
+      document.getElementById('aptSection').style.pointerEvents = 'none';
+      document.getElementById('aptSelect').innerHTML = '<option value="">Daire seçin...</option>';
+      document.getElementById('residentInfo').value = '';
+      document.getElementById('visitorName').value = '';
+      document.getElementById('resultPanel').classList.remove('show');
+      document.getElementById('submitBtn').disabled = true;
+    }
+
+    // Toast notification
+    function showToast(msg, type = 'info') {
+      const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+      const container = document.getElementById('toasts');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `${icons[type]} ${msg}`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    init();
+    setInterval(checkWhatsApp, 30000);
+  </script>
+<!-- ==================== TOPLU KARGO MODAL ==================== -->
+<div id="topluKargoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:var(--surface, #1a1a2e); border-radius:16px; padding:24px; width:90%; max-width:600px; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h2 style="margin:0; color:var(--text, #fff); font-size:20px;">📦📦 Toplu Kargo Girişi</h2>
+      <button onclick="topluKargoKapat()" style="background:none; border:none; color:var(--text-muted, #888); font-size:28px; cursor:pointer; line-height:1;">&times;</button>
+    </div>
+
+    <p style="color:var(--text-secondary, #aaa); font-size:13px; margin:0 0 12px;">
+      Kargo gelen daireleri işaretleyin, hepsine tek seferde bildirim gönderilecek.
+    </p>
+
+    <input type="text" id="topluKargoArama" placeholder="🔍 İsim veya daire ara (örn: Ahmet, A-5)..."
+      oninput="topluKargoFiltrele()"
+      style="padding:12px; border-radius:8px; border:1px solid var(--border, #333); background:var(--bg, #0f0f1a); color:var(--text, #fff); font-size:15px; margin-bottom:12px;">
+
+    <div id="topluKargoSecilenKutu" style="display:none; flex-wrap:wrap; gap:6px; margin-bottom:12px; padding:10px; background:var(--bg,#0f0f1a); border-radius:8px; max-height:100px; overflow-y:auto;"></div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <span id="topluKargoSayac" style="color:var(--accent, #4a9eff); font-weight:bold; font-size:14px;">0 daire seçildi</span>
+      <button onclick="topluKargoTumunuTemizle()" style="background:none; border:1px solid var(--border,#333); color:var(--text-muted,#888); padding:4px 10px; border-radius:6px; font-size:12px; cursor:pointer;">Seçimi Temizle</button>
+    </div>
+
+    <div id="topluKargoListe" style="flex:1; overflow-y:auto; border:1px solid var(--border, #333); border-radius:8px; padding:8px; margin-bottom:16px; min-height:200px; max-height:40vh;">
+      <!-- Daireler buraya dolacak -->
+    </div>
+
+    <button id="topluKargoGonderBtn" onclick="topluKargoGonder()" disabled
+      style="padding:14px; border-radius:10px; border:none; background:var(--accent, #4a9eff); color:#fff; font-size:16px; font-weight:bold; cursor:pointer; opacity:0.5;">
+      Seçilenlere Gönder
+    </button>
+
+    <div id="topluKargoSonuc" style="display:none; margin-top:12px; padding:12px; border-radius:8px; background:var(--bg,#0f0f1a); color:var(--text,#fff); font-size:13px; max-height:150px; overflow-y:auto;"></div>
+
+  </div>
+</div>
+
+</body>
+
+</html>

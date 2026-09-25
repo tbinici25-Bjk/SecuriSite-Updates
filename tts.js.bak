@@ -1,0 +1,158 @@
+/**
+ * tts.js — Site Güvenlik TTS Sesli Bildirim Modülü
+ * msedge-tts kullanarak Türkçe sesli bildirim üretir ve oynatır.
+ */
+
+const { MsEdgeTTS, OUTPUT_FORMAT } = require('msedge-tts');
+const { execFile } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+
+// ==================== SES AYARLARI ====================
+
+const TTS_VOICE = 'tr-TR-EmelNeural';       // Türkçe kadın sesi
+// Alternatif: 'tr-TR-AhmetNeural'          // Türkçe erkek sesi
+
+// ==================== METİN ŞABLONLARI ====================
+
+const SABLONLAR = {
+  kurye:       (blok, daire, sakin) => `${sakin} Hanım, ${blok} Blok ${daire} numaralı daireye yemek kuryesi gelmiştir.`,
+  kargo:       (blok, daire, sakin) => `${sakin} Bey, ${blok} Blok ${daire} numaralı daireye kargo teslimatı gelmiştir.`,
+  misafir:     (blok, daire, sakin, misafir) => misafir
+                 ? `${sakin} Hanım, ${blok} Blok ${daire} numaralı daireye ${misafir} isimli misafiriniz gelmiştir.`
+                 : `${sakin} Hanım, ${blok} Blok ${daire} numaralı daireye misafiriniz gelmiştir.`,
+  servis:      (blok, daire, sakin) => `${sakin} Bey, ${blok} Blok ${daire} numaralı daireye teknik servis ekibi gelmiştir.`,
+  beyaz_esya:  (blok, daire, sakin) => `${sakin} Bey, ${blok} Blok ${daire} numaralı daireye beyaz eşya teslimatı gelmiştir.`,
+  mobilya:     (blok, daire, sakin) => `${sakin} Bey, ${blok} Blok ${daire} numaralı daireye mobilya teslimatı gelmiştir.`,
+  hali_yikama: (blok, daire, sakin) => `${sakin} Hanım, ${blok} Blok ${daire} numaralı daireye halı yıkama servisi gelmiştir.`,
+  market:      (blok, daire, sakin) => `${sakin} Hanım, ${blok} Blok ${daire} numaralı daireye market kuryesi gelmiştir.`,
+  perde:       (blok, daire, sakin) => `${sakin} Hanım, ${blok} Blok ${daire} numaralı daireye perde servisi gelmiştir.`,
+  emanet:      (blok, daire, sakin) => `${sakin} Bey, ${blok} Blok ${daire} numaralı daire için emanet eşya bırakılmıştır.`,
+};
+
+// ==================== YARDIMCI: GEÇİCİ DOSYA ====================
+
+function getTempPath(suffix = '') {
+  return path.join(os.tmpdir(), `site-guvenlik-tts${suffix}-${Date.now()}.mp3`);
+}
+
+// ==================== TTS SESİ OLUŞTUR ====================
+
+async function metniSeseCevir(metin) {
+  const tts = new MsEdgeTTS();
+  await tts.setMetadata(TTS_VOICE, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+
+  const tempFile = getTempPath();
+  const { audioStream } = await tts.toStream(metin);
+
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(tempFile);
+    audioStream.pipe(output);
+    output.on('finish', () => resolve(tempFile));
+    output.on('error', reject);
+    audioStream.on('error', reject);
+  });
+}
+
+// ==================== SES OYNAT (Windows) ====================
+
+function sesiOynat(dosyaYolu) {
+  return new Promise((resolve, reject) => {
+    // Windows Media Player ile sessiz oynatım
+    const psKomutu = `
+      Add-Type -AssemblyName presentationCore;
+      $player = New-Object System.Windows.Media.MediaPlayer;
+      $player.Open([System.Uri]'${dosyaYolu.replace(/\\/g, '/')}');
+      $player.Play();
+      Start-Sleep -Seconds 8;
+      $player.Stop();
+      $player.Close();
+    `.trim().replace(/\n\s+/g, ' ');
+
+    execFile('powershell', ['-NoProfile', '-WindowStyle', 'Hidden', '-Command', psKomutu], {
+      timeout: 15000,
+      windowsHide: true
+    }, (err) => {
+      // Geçici dosyayı temizle
+      try { fs.unlinkSync(dosyaYolu); } catch (_) {}
+
+      if (err) {
+        console.error('⚠️ [TTS] Ses oynatma hatası:', err.message);
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+// ==================== ANA FONKSİYON ====================
+
+/**
+ * Sesli bildirim gönder.
+ * 
+ * @param {Object} params
+ * @param {string} params.type       - Giriş tipi (kurye, kargo, misafir, ...)
+ * @param {string} params.block      - Blok adı (A, B, C, ...)
+ * @param {number} params.apartment  - Daire numarası
+ * @param {string} params.sakin      - Sakin adı
+ * @param {string} [params.misafir]  - Misafir adı (sadece misafir tipinde)
+ * @param {string} [params.ozelMetin]- Şablon yerine kullanılacak özel metin
+ * 
+ * @returns {Promise<{success: boolean, message?: string, error?: string}>}
+ */
+async function seslibildiriGonder(params) {
+  const { type, block, apartment, sakin, misafir, ozelMetin } = params;
+
+  try {
+    let metin;
+
+    if (ozelMetin) {
+      metin = ozelMetin;
+    } else if (SABLONLAR[type]) {
+      metin = SABLONLAR[type](block, apartment, sakin, misafir);
+    } else {
+      metin = `${sakin} Hanım, ${block} Blok ${apartment} numaralı daireye ziyaretçi gelmiştir.`;
+    }
+
+    console.log(`🔊 [TTS] Sesli bildirim: "${metin}"`);
+
+    const dosya = await metniSeseCevir(metin);
+    await sesiOynat(dosya);
+
+    console.log(`✅ [TTS] Bildirim oynatıldı.`);
+    return { success: true, message: metin };
+
+  } catch (err) {
+    console.error('❌ [TTS] Hata:', err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+// ==================== TEST FONKSİYONU ====================
+
+/**
+ * TTS sistemini test et.
+ * node tts.js komutuyla doğrudan çalıştırılabilir.
+ */
+async function test() {
+  console.log('🧪 TTS Test Başlıyor...');
+  const sonuc = await seslibildiriGonder({
+    type: 'misafir',
+    block: 'A',
+    apartment: 12,
+    sakin: 'Ahmet Yılmaz',
+    misafir: 'Mehmet Demir'
+  });
+  console.log('Test sonucu:', sonuc);
+}
+
+// ==================== EXPORT ====================
+
+module.exports = { seslibildiriGonder, SABLONLAR };
+
+// Doğrudan çalıştırılırsa test et
+if (require.main === module) {
+  test().catch(console.error);
+}

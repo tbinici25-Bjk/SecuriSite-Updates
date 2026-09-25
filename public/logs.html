@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Güvenlik - Giriş Logları</title>
+    <link rel="stylesheet" href="style.css">
+<style>
+.stats-grid .stat-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 90px;
+}
+.stats-grid .stat-label {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+}
+.stats-grid .stat-value {
+    margin-top: auto;
+}
+</style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><span>🏢</span> Site Güvenlik</div>
+        <ul class="nav-links">
+            <li><a href="/">🚪 Giriş Kayıt</a></li>
+            <li><a href="/admin.html">⚙️ Yönetim</a></li>
+            <li><a href="/logs.html" class="active">📋 Loglar</a></li>
+            <li><a href="/whatsapp.html">📱 WhatsApp</a></li>
+            <li><a href="/assistant.html">🤖 Asistan</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📋 Giriş Kaydı ve Arşiv</h1>
+            <p>Son 1 yıla ait tüm girişleri inceleyebilir, arama ve filtreleme yapabilirsiniz.</p>
+        </div>
+
+        <!-- Stats Dashboard -->
+        <div class="stats-grid" id="statsGrid" style="align-items: stretch;">
+            <div class="stat-card">
+                <span class="stat-label">Bugünkü Toplam</span>
+                <span class="stat-value" id="statToday">-</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Misafir</span>
+                <span class="stat-value" id="statMisafir">-</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Kurye / Kargo / Market</span>
+                <span class="stat-value" id="statDelivery">-</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-label">Diğer (Servis/Emanet vb.)</span>
+                <span class="stat-value" id="statDiger">-</span>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #2d1f3d, #1a1a2e); border-left: 3px solid #e74c3c;">
+                <span class="stat-label">🚨 Olaylar</span>
+                <span class="stat-value" id="statOlay">-</span>
+            </div>
+        </div>
+
+        <!-- Tab Buttons -->
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+            <button class="btn btn-sm" id="tabEntries" onclick="switchTab('entries')" style="background: var(--accent); color: white;">📋 Giriş Kayıtları</button>
+            <button class="btn btn-sm" id="tabIncidents" onclick="switchTab('incidents')" style="background: var(--surface); color: var(--text-dim);">🚨 Olay / Vaka</button>
+        </div>
+
+        <!-- Filtre Uyarısı -->
+        <div class="card" id="entriesSection">
+            <div class="alert-banner warning" id="filterAlert" style="display: none;">
+                <div class="icon">ℹ️</div>
+                <div style="flex: 1;">
+                    <b>Filtre Aktif:</b> Şu an sadece belirli bir tarihe ait kayıtları görüyorsunuz.
+                    Tüm geçmişi görmek için "Tüm Geçmişi Göster" butonuna basın.
+                    <br><small>Sistem kayıtları profesyonel standart gereği 1 yıl boyunca saklanmaktadır.</small>
+                </div>
+                <button class="btn btn-sm btn-outline" onclick="showAllHistory()" style="white-space: nowrap;">Tüm Geçmişi Göster</button>
+            </div>
+        </div>
+
+        <div class="card" id="entriesCard">
+            <div class="filter-row">
+                <h2>📋 Kayıt Listesi</h2>
+            </div>
+            <div class="filter-row">
+                <div class="search-group" style="flex: 1; display: flex; align-items: center; gap: 10px;">
+                    <span class="icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">🔍</span>
+                    <input type="text" class="form-control" id="searchInput" placeholder="İsim, blok veya daire ara..." oninput="debounceSearch()" style="padding-left: 40px; flex: 1;">
+                    <div id="searchBadge" class="search-badge" style="display: none; white-space: nowrap;">🕵️ Tüm Kayıtlarda Aranıyor</div>
+                </div>
+                <div style="width: 180px;">
+                    <input type="date" class="form-control" id="dateFilter" onchange="resetAndLoad()">
+                </div>
+                <button class="btn btn-outline" onclick="resetAll()">Sıfırla</button>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Zaman</th>
+                            <th>Tip</th>
+                            <th>Konum</th>
+                            <th>Daire Sakini</th>
+                            <th>Ziyaretçi / Onay</th>
+                            <th>WhatsApp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logList"></tbody>
+                </table>
+            </div>
+
+            <div class="pagination-footer" id="paginationFooter">
+                <button class="btn btn-outline" id="loadMoreBtn" onclick="loadMore()">Daha Fazla Yükle</button>
+            </div>
+        </div>
+
+        <!-- Olay/Vaka Tablosu -->
+        <div class="card" id="incidentsCard" style="display: none;">
+            <div class="filter-row">
+                <h2>🚨 Olay / Vaka Listesi</h2>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Zaman</th>
+                            <th>Olay Tipi</th>
+                            <th>Konum</th>
+                            <th>Açıklama</th>
+                            <th>Öncelik</th>
+                        </tr>
+                    </thead>
+                    <tbody id="incidentList"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <script>
+            let currentOffset = 0;
+            const LIMIT = 50;
+            let searchTimeout;
+
+            // logId → satır eşleştirmesi için map
+            const logRowMap = new Map();
+
+            async function loadStats() {
+                const date = document.getElementById('dateFilter').value;
+                let url = '/api/logs/stats';
+                if (date) url += `?date=${date}`;
+                try {
+                    const raw = await fetch(url).then(r => r.json());
+                    let byTypeArr = [], totalCount = 0;
+                    if (Array.isArray(raw)) {
+                        byTypeArr = raw;
+                        totalCount = raw.reduce((s, r) => s + r.count, 0);
+                    } else {
+                        byTypeArr = raw.byType || [];
+                        totalCount = raw.total != null ? raw.total : byTypeArr.reduce((s, r) => s + r.count, 0);
+                    }
+                    document.getElementById('statToday').textContent = totalCount;
+                    const byType = {};
+                    byTypeArr.forEach(s => { byType[s.type] = s.count; });
+                    document.getElementById('statMisafir').textContent = byType.misafir || 0;
+                    document.getElementById('statDelivery').textContent = (byType.kurye || 0) + (byType.kargo || 0) + (byType.market || 0);
+                    const _misafir = byType.misafir || 0;
+                    const _delivery = (byType.kurye || 0) + (byType.kargo || 0) + (byType.market || 0);
+                    document.getElementById('statDiger').textContent = totalCount - _misafir - _delivery;
+                } catch(e) { console.error('Stats error:', e); }
+            }
+
+            function getTypeBadge(type) {
+                const badges = {
+                    kurye: '<span class="badge badge-kurye">🍕 Kurye</span>',
+                    kargo: '<span class="badge badge-kargo">📦 Kargo</span>',
+                    beyaz_esya: '<span class="badge badge-service">🚚 B.Eşya</span>',
+                    mobilya: '<span class="badge badge-service">🛋️ Mobilya</span>',
+                    hali_yikama: '<span class="badge badge-service">🧺 Halı</span>',
+                    misafir: '<span class="badge badge-misafir">👤 Misafir</span>',
+                    servis: '<span class="badge badge-outline" style="border-color:#e67e22;color:#e67e22;">🛠️ Servis</span>',
+                    market: '<span class="badge badge-outline" style="border-color:#27ae60;color:#27ae60;">🛒 Market</span>',
+                    perde: '<span class="badge badge-outline" style="border-color:#3498db;color:#3498db;">🧵 Perde</span>',
+                    emanet: '<span class="badge badge-outline" style="border-color:#f1c40f;color:#f1c40f;">🎁 Emanet</span>'
+                };
+                return badges[type] || type;
+            }
+
+            function getConfirmHtml(l) {
+                if (l.type !== 'misafir') return '';
+                const by = l.confirmed_by ? ` <small style="color:var(--text-muted)">(${l.confirmed_by})</small>` : '';
+                if (l.confirmation === 'EVET')
+                    return `<br><span class="badge badge-success">✅ GİRİŞ ONAYLANDI</span>${by}`;
+                if (l.confirmation === 'HAYIR')
+                    return `<br><span class="badge badge-danger">🚨 GİRİŞ REDDEDİLDİ</span>${by}`;
+                if (l.confirmation === 'OTOMATİK ONAY')
+                    return `<br><span class="badge badge-outline">⌛ OTO ONAY</span>`;
+                if (l.confirmation === 'MANUEL ONAY')
+                    return `<br><span class="badge badge-success">👮 MANUEL ONAY</span>`;
+                if (l.confirmation === 'Bekliyor...')
+                    return `<br><span class="badge badge-warning" style="background:rgba(251,191,36,0.15);color:#fbbf24;animation:pulse 2s infinite;">⏳ Yanıt Bekleniyor</span><br><button class="btn btn-sm btn-outline" onclick="approveEntry(${l.id})" style="padding:2px 6px;font-size:10px;margin-top:4px;">👮 Manuel Onayla</button>`;
+                return `<br><button class="btn btn-sm btn-primary" onclick="approveEntry(${l.id})" style="padding:2px 6px;font-size:10px;margin-top:4px;">Onayla</button>`;
+            }
+
+            function getAckIcon(ackStatus) {
+                switch(ackStatus) {
+                    case -1: return '<span style="color:#e74c3c;font-weight:bold;" title="Hata">✗</span>';
+                    case 0:  return '<span style="color:#95a5a6" title="Beklemede">⏳</span>';
+                    case 1:  return '<span style="color:#95a5a6" title="Gönderildi">✓</span>';
+                    case 2:  return '<span style="color:#2ecc71" title="İletildi">✓✓</span>';
+                    case 3:  return '<span style="color:#3498db" title="Okundu">✓✓</span>';
+                    case 4:  return '<span style="color:#2ecc71" title="Dinlendi">▶✓</span>';
+                    default: return '';
+                }
+            }
+
+            function buildRow(l) {
+                let time = '-';
+                try {
+                    time = new Date(l.timestamp.replace(' ','T')).toLocaleString('tr-TR', {
+                        hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit'
+                    });
+                } catch(_) {}
+
+                const confirmHtml = getConfirmHtml(l);
+                const visitorText = l.visitor_name || '<small>-</small>';
+
+                const waStatus = `
+                    <div style="display:flex;gap:6px;align-items:center;">
+                        <div title="1. Numara">${getAckIcon(l.ack_status)}</div>
+                        ${l.resident_phone2 ? `<div title="2. Numara" style="border-left:1px solid #ddd;padding-left:4px;">${getAckIcon(l.ack_status2)}</div>` : ''}
+                        ${l.resident_phone3 ? `<div title="3. Numara" style="border-left:1px solid #ddd;padding-left:4px;">${getAckIcon(l.ack_status3)}</div>` : ''}
+                    </div>`;
+
+                return `
+                    <tr data-log-id="${l.id}">
+                        <td style="color:var(--text-secondary);font-size:12px;">${time}</td>
+                        <td>${getTypeBadge(l.type)}</td>
+                        <td><strong>${l.block}-${l.apartment_no}</strong></td>
+                        <td>
+                            <div style="font-weight:500;">${l.resident_name}</div>
+                            <small style="color:var(--text-muted);">${l.resident_phone}</small>
+                        </td>
+                        <td class="confirm-cell">${visitorText}${confirmHtml}</td>
+                        <td>${waStatus}</td>
+                    </tr>`;
+            }
+
+            async function loadLogs(append = false) {
+                const date = document.getElementById('dateFilter').value;
+                const search = document.getElementById('searchInput').value;
+
+                if (!append) {
+                    currentOffset = 0;
+                    logRowMap.clear();
+                    document.getElementById('logList').innerHTML = '<tr><td colspan="6" class="empty-state">Yükleniyor...</td></tr>';
+                }
+
+                document.getElementById('searchBadge').style.display = (search && search.length > 0) ? 'inline-block' : 'none';
+
+                let url = `/api/logs?limit=${LIMIT}&offset=${currentOffset}`;
+                if (date) url += `&date=${date}`;
+                if (search) url += `&search=${encodeURIComponent(search.trim())}`;
+
+                try {
+                    const logs = await fetch(url).then(r => r.json());
+                    const list = document.getElementById('logList');
+
+                    if (logs.length === 0 && !append) {
+                        list.innerHTML = `<tr><td colspan="6" class="empty-state"><div class="icon">🔒</div><p>Sonuç bulunamadı.</p></td></tr>`;
+                        document.getElementById('paginationFooter').style.display = 'none';
+                        return;
+                    }
+
+                    const html = logs.filter(l => l.timestamp).map(l => buildRow(l)).join('');
+
+                    if (append) {
+                        list.innerHTML += html;
+                    } else {
+                        list.innerHTML = html;
+                    }
+
+                    // logId → tr eşleştirmesini kaydet
+                    logs.forEach(l => {
+                        const tr = list.querySelector(`tr[data-log-id="${l.id}"]`);
+                        if (tr) logRowMap.set(l.id, tr);
+                    });
+
+                    document.getElementById('paginationFooter').style.display = logs.length < LIMIT ? 'none' : 'block';
+                    loadStats();
+                } catch(e) {
+                    console.error('Log yükleme hatası:', e);
+                    document.getElementById('logList').innerHTML = `<tr><td colspan="6" class="empty-state"><div class="icon">⚠️</div><p>Veriler yüklenemedi.</p></td></tr>`;
+                }
+            }
+
+            function loadMore() {
+                currentOffset += LIMIT;
+                loadLogs(true);
+            }
+
+            function debounceSearch() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => resetAndLoad(), 500);
+            }
+
+            function resetAndLoad() {
+                currentOffset = 0;
+                const date = document.getElementById('dateFilter').value;
+                document.getElementById('filterAlert').style.display = date ? 'flex' : 'none';
+                loadLogs(false);
+            }
+
+            function resetAll() {
+                document.getElementById('searchInput').value = '';
+                setToday();
+                resetAndLoad();
+            }
+
+            function showAllHistory() {
+                document.getElementById('dateFilter').value = '';
+                document.getElementById('searchInput').value = '';
+                resetAndLoad();
+            }
+
+            function setToday() {
+                const now = new Date();
+                const y = now.getFullYear();
+                const m = String(now.getMonth()+1).padStart(2,'0');
+                const d = String(now.getDate()).padStart(2,'0');
+                document.getElementById('dateFilter').value = `${y}-${m}-${d}`;
+            }
+
+            async function approveEntry(id) {
+                if (!confirm('Manuel onay verilsin mi?')) return;
+                const res = await fetch(`/api/entry/${id}/approve`, { method: 'POST' });
+                if (res.ok) {
+                    // Sadece o satırı güncelle
+                    const tr = logRowMap.get(id);
+                    if (tr) {
+                        const cell = tr.querySelector('.confirm-cell');
+                        if (cell) {
+                            const visitorText = cell.innerHTML.split('<br>')[0];
+                            cell.innerHTML = `${visitorText}<br><span class="badge badge-success">👮 MANUEL ONAY</span>`;
+                        }
+                    } else {
+                        resetAndLoad();
+                    }
+                }
+            }
+
+            function switchTab(tab) {
+                const isEntries = tab === 'entries';
+                document.getElementById('entriesSection').style.display = isEntries ? '' : 'none';
+                document.getElementById('entriesCard').style.display = isEntries ? '' : 'none';
+                document.getElementById('paginationFooter').style.display = isEntries ? '' : 'none';
+                document.getElementById('incidentsCard').style.display = isEntries ? 'none' : '';
+                document.getElementById('tabEntries').style.background = isEntries ? 'var(--accent)' : 'var(--surface)';
+                document.getElementById('tabEntries').style.color = isEntries ? 'white' : 'var(--text-dim)';
+                document.getElementById('tabIncidents').style.background = isEntries ? 'var(--surface)' : '#e74c3c';
+                document.getElementById('tabIncidents').style.color = isEntries ? 'var(--text-dim)' : 'white';
+                if (!isEntries) loadIncidents();
+            }
+
+            async function loadIncidents() {
+                try {
+                    const incidents = await fetch('/api/incidents?limit=100').then(r => r.json());
+                    const list = document.getElementById('incidentList');
+                    if (incidents.length === 0) {
+                        list.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="icon">🚨</div><p>Kayıtlı olay yok.</p></td></tr>';
+                        return;
+                    }
+                    const olayLabels = {
+                        supheli:'🕵️‍♂️ Şüpheli', gurultu:'🔊 Gürültü', park:'🚗 Park İhlali',
+                        ariza:'🔧 Arıza', kavga:'⚠️ Kavga', hirsizlik:'🔒 Hırsızlık',
+                        acil:'🚨 Acil', olum:'⚫ Ölüm', intihar:'🆘 İntihar', diger:'📌 Diğer'
+                    };
+                    const priBadges = {
+                        dusuk: '<span class="badge" style="background:#27ae60;color:white;">🟢 Düşük</span>',
+                        normal: '<span class="badge" style="background:#f39c12;color:white;">🟡 Normal</span>',
+                        acil: '<span class="badge" style="background:#e74c3c;color:white;">🔴 Acil</span>'
+                    };
+                    list.innerHTML = incidents.map(i => {
+                        const time = new Date(i.timestamp.replace(' ','T')).toLocaleString('tr-TR', {
+                            hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit'
+                        });
+                        return `<tr>
+                            <td>${time}</td>
+                            <td>${olayLabels[i.olay_type] || i.olay_type}</td>
+                            <td><b>${i.location}</b></td>
+                            <td>${i.description}</td>
+                            <td>${priBadges[i.priority] || i.priority}</td>
+                        </tr>`;
+                    }).join('');
+                    document.getElementById('statOlay').textContent = incidents.length;
+                } catch(e) { console.error('Olay yükleme hatası:', e); }
+            }
+
+            // ==================== ANLIK ONAY GÜNCELLEMESİ (SSE) ====================
+            // DÜZELTİLDİ: Tüm liste yenilenmek yerine sadece ilgili satır anlık güncelleniyor
+
+            const evtSource = new EventSource('/api/onay-stream');
+
+            evtSource.onmessage = async (e) => {
+                try {
+                    const data = JSON.parse(e.data);
+                    if (data.type !== 'onay') return;
+
+                    console.log('⚡ Anlık onay:', data.logId, data.confirmation, data.confirmedBy);
+
+                    const tr = logRowMap.get(data.logId);
+                    if (!tr) {
+                        // Satır ekranda yoksa listeyi yenile
+                        loadLogs();
+                        return;
+                    }
+
+                    // Sadece o satırın onay hücresini güncelle
+                    const cell = tr.querySelector('.confirm-cell');
+                    if (!cell) return;
+
+                    const visitorText = cell.innerHTML.split('<br>')[0];
+                    const by = data.confirmedBy
+                        ? ` <small style="color:var(--text-muted)">(${data.confirmedBy})</small>`
+                        : '';
+
+                    if (data.confirmation === 'EVET') {
+                        cell.innerHTML = `${visitorText}<br><span class="badge badge-success">✅ GİRİŞ ONAYLANDI</span>${by}`;
+                    } else if (data.confirmation === 'HAYIR') {
+                        cell.innerHTML = `${visitorText}<br><span class="badge badge-danger">🚨 GİRİŞ REDDEDİLDİ</span>${by}`;
+                    }
+
+                } catch(err) {
+                    console.error('SSE parse hatası:', err);
+                }
+            };
+
+            evtSource.onerror = () => {
+                console.warn('⚠️ SSE bağlantısı kesildi, 5sn sonra polling...');
+                setTimeout(() => loadLogs(), 5000);
+            };
+
+            // Başlangıç
+            setToday();
+            resetAndLoad();
+            loadIncidents();
+            setInterval(loadStats, 30000);
+        </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+﻿node_modules/
+ffmpeg/
+*.exe
+*.dll
+*.pak
+*.bin
+*.dat
+*.db
+*.db.bak
+*.license
+.wwebjs_auth/
+.wwebjs_auth_electron/
+*_yedek_*.js
+*_ESKI*.js
+*_yedek*.html
+dist/

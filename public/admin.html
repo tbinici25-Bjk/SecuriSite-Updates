@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Güvenlik - Yönetim Paneli</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo"><span>🏢</span> Site Güvenlik</div>
+        <ul class="nav-links">
+            <li><a href="/">🚪 Giriş Kayıt</a></li>
+            <li><a href="/admin.html" class="active">⚙️ Yönetim</a></li>
+            <li><a href="/logs.html">📋 Loglar</a></li>
+            <li><a href="/whatsapp.html">📱 WhatsApp</a></li>
+            <li><a href="/assistant.html">🤖 Asistan</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>⚙️ Yönetim Paneli</h1>
+            <p>Blok, daire ve sakin bilgilerini yönetin</p>
+        </div>
+
+        <!-- Add Resident Modal Trigger -->
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+            <button class="btn btn-primary" onclick="openModal()">➕ Yeni Sakin Ekle</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Blok Listesi</h2>
+                <div class="form-group" style="margin-bottom:0; width: 200px;">
+                    <select class="form-control" id="blockFilter" onchange="loadResidents()">
+                        <option value="A">A Blok</option>
+                        <option value="B">B Blok</option>
+                        <option value="C">C Blok</option>
+                        <option value="D">D Blok</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table id="residentTable">
+                    <thead>
+                        <tr>
+                            <th>Daire No</th>
+                            <th>Sakin Adı Soyadı</th>
+                            <th>Telefon Numarası</th>
+                            <th>Plaka</th>
+                            <th style="text-align: right;">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="residentList">
+                        <!-- Loaded via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Add/Edit -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3 id="modalTitle">Yeni Sakin Ekle</h3>
+            <form id="residentForm" onsubmit="saveResident(event)">
+                <input type="hidden" id="residentId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Blok</label>
+                        <select class="form-control" id="formBlock" required>
+                            <option value="A">A Blok</option>
+                            <option value="B">B Blok</option>
+                            <option value="C">C Blok</option>
+                            <option value="D">D Blok</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Daire No</label>
+                        <input type="number" class="form-control" id="formApt" required min="1" max="27">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ad Soyad (1. Kişi)</label>
+                        <input type="text" class="form-control" id="formName" required placeholder="Örn: Ahmet Yılmaz">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefon (1. Kişi)</label>
+                        <input type="text" class="form-control" id="formPhone" required placeholder="Örn: 05551234567">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ad Soyad (2. Kişi - Opsiyonel)</label>
+                        <input type="text" class="form-control" id="formName2" placeholder="Örn: Ayşe Yılmaz">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefon (2. Kişi - Opsiyonel)</label>
+                        <input type="text" class="form-control" id="formPhone2" placeholder="Örn: 05559876543">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Ad Soyad (3. Kişi - Opsiyonel)</label>
+                        <input type="text" class="form-control" id="formName3" placeholder="Örn: Mehmet Yılmaz">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefon (3. Kişi - Opsiyonel)</label>
+                        <input type="text" class="form-control" id="formPhone3" placeholder="Örn: 05557778899">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>🚗 Araç Plakası (Opsiyonel)</label>
+                    <input type="text" class="form-control" id="formPlaka" placeholder="Örn: 34 ABC 123"
+                        style="text-transform:uppercase">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toasts"></div>
+
+    <script>
+        let EditingId = null;
+
+        async function loadBlocks() {
+            try {
+                const blocks = await fetch('/api/blocks').then(r => r.json());
+                const bloklar = Object.keys(blocks);
+                const filterSel = document.getElementById('blockFilter');
+                const formSel = document.getElementById('formBlock');
+                const secenekler = bloklar.map(b => `<option value="${b}">${b}</option>`).join('');
+                if (filterSel) filterSel.innerHTML = secenekler;
+                if (formSel) formSel.innerHTML = secenekler;
+            } catch (e) {
+                console.error('Bloklar yüklenemedi:', e);
+            }
+        }
+
+        async function loadResidents() {
+            const block = document.getElementById('blockFilter').value;
+            const resp = await fetch(`/api/residents?block=${block}`);
+            const residents = await resp.json();
+
+            const list = document.getElementById('residentList');
+            if (residents.length === 0) {
+                list.innerHTML = `<tr><td colspan="5" class="empty-state"><div class="icon">🔍</div><p>Bu blokta henüz kayıtlı sakin yok.</p></td></tr>`;
+                return;
+            }
+
+            list.innerHTML = residents.map(r => `
+        <tr>
+          <td><strong>${r.apartment_no}</strong></td>
+          <td>
+            <div>${r.name}</div>
+            ${r.name2 ? `<div style="font-size: 0.85em; color: var(--text-muted); margin-top: 4px;">👤 ${r.name2}</div>` : ''}
+            ${r.name3 ? `<div style="font-size: 0.85em; color: var(--text-muted); margin-top: 4px;">👤 ${r.name3}</div>` : ''}
+          </td>
+          <td>
+            <div>${r.phone}</div>
+            ${r.phone2 ? `<div style="font-size: 0.85em; color: var(--text-muted); margin-top: 4px;">📱 ${r.phone2}</div>` : ''}
+            ${r.phone3 ? `<div style="font-size: 0.85em; color: var(--text-muted); margin-top: 4px;">📱 ${r.phone3}</div>` : ''}
+          </td>
+          <td>${r.plaka ? `<span class="badge badge-outline" style="border-color:#3498db;color:#3498db">🚗 ${r.plaka}</span>` : '<span style="color:var(--text-muted)">—</span>'}</td>
+          <td style="text-align: right;">
+            <button class="btn btn-outline btn-sm" onclick='editResident(${JSON.stringify(r)})'>✏️ Düzenle</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteResident(${r.id})">🗑️ Sil</button>
+          </td>
+        </tr>
+      `).join('');
+        }
+
+        function openModal() {
+            document.getElementById('modalTitle').textContent = 'Yeni Sakin Ekle';
+            document.getElementById('residentForm').reset();
+            document.getElementById('residentId').value = '';
+            document.getElementById('formBlock').value = document.getElementById('blockFilter').value;
+            document.getElementById('formBlock').disabled = false;
+            document.getElementById('formApt').disabled = false;
+            EditingId = null;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function editResident(r) {
+            document.getElementById('modalTitle').textContent = 'Sakini Düzenle';
+            document.getElementById('residentId').value = r.id;
+            document.getElementById('formBlock').value = r.block;
+            document.getElementById('formBlock').disabled = true;
+            document.getElementById('formApt').value = r.apartment_no;
+            document.getElementById('formApt').disabled = true;
+            document.getElementById('formName').value = r.name;
+            document.getElementById('formPhone').value = r.phone;
+            document.getElementById('formName2').value = r.name2 || '';
+            document.getElementById('formPhone2').value = r.phone2 || '';
+            document.getElementById('formName3').value = r.name3 || '';
+            document.getElementById('formPhone3').value = r.phone3 || '';
+            document.getElementById('formPlaka').value = r.plaka || '';
+            EditingId = r.id;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        async function saveResident(e) {
+            e.preventDefault();
+            const id = document.getElementById('residentId').value;
+            const data = {
+                block: document.getElementById('formBlock').value,
+                apartment_no: document.getElementById('formApt').value,
+                name: document.getElementById('formName').value,
+                phone: document.getElementById('formPhone').value,
+                name2: document.getElementById('formName2').value,
+                phone2: document.getElementById('formPhone2').value,
+                name3: document.getElementById('formName3').value,
+                phone3: document.getElementById('formPhone3').value,
+                plaka: document.getElementById('formPlaka').value.toUpperCase()
+            };
+
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `/api/residents/${id}` : '/api/residents';
+
+            try {
+                const resp = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await resp.json();
+                if (!resp.ok) throw new Error(result.error || 'İşlem başarısız');
+
+                showToast(id ? 'Sakin güncellendi' : 'Sakin eklendi', 'success');
+                closeModal();
+                loadResidents();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteResident(id) {
+            if (!confirm('Bu sakini silmek istediğinize emin misiniz?')) return;
+
+            try {
+                const resp = await fetch(`/api/residents/${id}`, { method: 'DELETE' });
+                if (resp.ok) {
+                    showToast('Sakin silindi', 'success');
+                    loadResidents();
+                }
+            } catch (err) {
+                showToast('Hata oluştu', 'error');
+            }
+        }
+
+        function showToast(msg, type = 'info') {
+            const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+            const container = document.getElementById('toasts');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `${icons[type]} ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        loadBlocks().then(() => loadResidents());
+    </script>
+</body>
+
+</html>

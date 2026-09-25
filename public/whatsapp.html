@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Güvenlik - WhatsApp Bağlantısı</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><span>🏢</span> Site Güvenlik</div>
+        <ul class="nav-links">
+            <li><a href="/">🚪 Giriş Kayıt</a></li>
+            <li><a href="/admin.html">⚙️ Yönetim</a></li>
+            <li><a href="/logs.html">📋 Loglar</a></li>
+            <li><a href="/whatsapp.html" class="active">📱 WhatsApp</a></li>
+            <li><a href="/assistant.html">🤖 Asistan</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📱 WhatsApp Bağlantısı</h1>
+            <p>QR kod veya telefon numarası ile bağlanın</p>
+        </div>
+
+        <div class="card" style="text-align: center; max-width: 500px; margin: 0 auto;">
+
+            <!-- Durum Mesajı -->
+            <div class="qr-status" id="statusMessage">Kontrol ediliyor...</div>
+
+            <!-- QR Kod Alanı -->
+            <div id="qrContainer" style="display: none; margin: 20px 0;">
+                <img id="qrImage" src="" alt="QR Kod" style="max-width: 280px; border-radius: 12px;">
+                <p style="margin-top: 16px; color: var(--text-secondary); font-size: 13px;">
+                    WhatsApp → Ayarlar → Bağlı Cihazlar → Cihaz Bağla
+                </p>
+            </div>
+
+            <!-- Pairing Code Alanı -->
+            <div id="pairingCodeArea" style="display: none; margin: 20px 0;">
+                <div style="font-size: 36px; letter-spacing: 8px; font-weight: bold; color: var(--accent); padding: 20px; background: var(--surface); border-radius: 12px; font-family: monospace;" id="pairingCodeText">-</div>
+                <p style="margin-top: 16px; color: var(--text-secondary); font-size: 13px;">
+                    WhatsApp → Ayarlar → Bağlı Cihazlar → Telefon Numarası ile Bağla → Bu kodu girin
+                </p>
+            </div>
+
+            <!-- Telefon Numarası Formu -->
+            <div id="phoneForm" style="display: none; margin: 24px 0;">
+                <p style="color: var(--text-secondary); margin-bottom: 12px; font-size: 14px;">
+                    QR kod taramak yerine telefon numaranızla bağlanın:
+                </p>
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <input type="tel" id="phoneInput" placeholder="05XX XXX XX XX"
+                        style="padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 16px; width: 200px; text-align: center;">
+                    <button class="btn btn-primary" onclick="connectWithPhone()">Kod Al</button>
+                </div>
+            </div>
+
+            <!-- Bağlı Alanı -->
+            <div id="connectedArea" style="display: none; padding: 40px;">
+                <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+                <h2 style="color: var(--success);">WhatsApp Bağlı</h2>
+                <p style="color: var(--text-secondary); margin-top: 10px;">
+                    Sistem şu anda bildirim göndermeye hazır.
+                </p>
+                <div style="margin-top: 30px; display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn btn-outline" onclick="window.location.reload()">Sayfayı Yenile</button>
+                    <button class="btn btn-danger" onclick="logoutWhatsApp()">🔴 Oturumu Kapat</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        async function checkStatus() {
+            try {
+                const resp = await fetch('/api/whatsapp/status');
+                const st = await resp.json();
+
+                document.getElementById('statusMessage').textContent = st.statusMessage;
+
+                if (st.isReady) {
+                    // Bağlı
+                    document.getElementById('connectedArea').style.display = 'block';
+                    document.getElementById('qrContainer').style.display = 'none';
+                    document.getElementById('pairingCodeArea').style.display = 'none';
+                    document.getElementById('phoneForm').style.display = 'none';
+
+                } else if (st.pairingCode) {
+                    // Pairing code göster
+                    document.getElementById('connectedArea').style.display = 'none';
+                    document.getElementById('qrContainer').style.display = 'none';
+                    document.getElementById('pairingCodeArea').style.display = 'block';
+                    document.getElementById('phoneForm').style.display = 'none';
+                    document.getElementById('pairingCodeText').textContent = st.pairingCode;
+
+                } else if (st.hasQR) {
+                    // QR kod göster
+                    document.getElementById('connectedArea').style.display = 'none';
+                    document.getElementById('qrContainer').style.display = 'block';
+                    document.getElementById('pairingCodeArea').style.display = 'none';
+                    document.getElementById('phoneForm').style.display = 'block';
+                    loadQR();
+
+                } else {
+                    // Bağlantı bekleniyor
+                    document.getElementById('connectedArea').style.display = 'none';
+                    document.getElementById('qrContainer').style.display = 'none';
+                    document.getElementById('pairingCodeArea').style.display = 'none';
+                    document.getElementById('phoneForm').style.display = 'block';
+                }
+            } catch(e) {
+                document.getElementById('statusMessage').textContent = 'Sunucuya bağlanılamadı.';
+            }
+        }
+
+        async function loadQR() {
+            try {
+                const resp = await fetch('/api/whatsapp/qr');
+                const data = await resp.json();
+                if (data.qr) document.getElementById('qrImage').src = data.qr;
+            } catch(e) {}
+        }
+
+        async function connectWithPhone() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            if (!phone) { alert('Telefon numarası girin!'); return; }
+
+            const btn = document.querySelector('#phoneForm .btn-primary');
+            btn.disabled = true;
+            btn.textContent = '⏳ Bekleniyor...';
+            document.getElementById('statusMessage').textContent = 'Bağlantı kodu alınıyor...';
+
+            try {
+                const resp = await fetch('/api/whatsapp/pairing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                const result = await resp.json();
+                if (!result.success) {
+                    alert('Hata: ' + result.error);
+                    btn.disabled = false;
+                    btn.textContent = 'Kod Al';
+                }
+            } catch(err) {
+                alert('Hata oluştu.');
+                btn.disabled = false;
+                btn.textContent = 'Kod Al';
+            }
+        }
+
+        async function logoutWhatsApp() {
+            if (!confirm('WhatsApp oturumunu kapatmak istediğinize emin misiniz?')) return;
+            const btn = document.querySelector('#connectedArea .btn-danger');
+            btn.disabled = true;
+            btn.textContent = '⏱️ Bekleyin...';
+            try {
+                const resp = await fetch('/api/whatsapp/logout', { method: 'POST' });
+                const result = await resp.json();
+                if (result.success) {
+                    alert('Çıkış başarılı.');
+                    window.location.reload();
+                } else {
+                    alert('Hata: ' + result.error);
+                    btn.disabled = false;
+                    btn.textContent = '🔴 Oturumu Kapat';
+                }
+            } catch(err) {
+                alert('Hata oluştu.');
+                btn.disabled = false;
+                btn.textContent = '🔴 Oturumu Kapat';
+            }
+        }
+
+        checkStatus();
+        setInterval(() => {
+    if (!document.getElementById('pairingCodeArea') || 
+        document.getElementById('pairingCodeArea').style.display === 'none') {
+        checkStatus();
+    }
+}, 3000);
+    </script>
+</body>
+</html>

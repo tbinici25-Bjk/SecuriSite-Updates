@@ -1,0 +1,15 @@
+{
+  "name": "site-guvenlik",
+  "version": "2.0.0",
+  "description": "Site Güvenlik Yönetim Sistemi — Electron Masaüstü Uygulaması",
+  "main": "main.js",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
+    "express": "^4.18.2",
+    "msedge-tts": "^2.0.4",
+    "png-to-ico": "^3.0.1",
+    "qrcode": "^1.5.3",
+    "sql.js": "^1.14.1"
+  },
+  "author": "Arem Güvenlik"
+}
