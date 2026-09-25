@@ -11,6 +11,14 @@ ffmpeg/
 .wwebjs_auth/
 .wwebjs_auth_electron/
 *_yedek_*.js
+*_yedek*.js
 *_ESKI*.js
 *_yedek*.html
+*_LISANS_ONCESI*.js
+*.bak
 dist/
+DUZELTMELER.txt
+MODAL_GUNCELLEME.txt
+fix_check.js
+db_update.js
+test_data.js
