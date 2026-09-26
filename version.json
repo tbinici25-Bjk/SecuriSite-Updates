@@ -1,9 +1,8 @@
 {
-    "version":  "2.1.2",
-    "zip_url":  "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v2.1.2/SecuriSite-Update-2.1.2.zip",
-    "notes":  "Test geri alma",
-    "zorunlu":  true,
-    "node_modules":  true,
-    "date":  "2026-09-26",
-    "rollback_from":  "2.1.1"
+    "version": "2.1.1",
+    "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v2.1.1/SecuriSite-Update-2.1.1.zip",
+    "notes": "Tam paket uygulama testi",
+    "zorunlu": false,
+    "node_modules": true,
+    "date": "2026-09-26"
 }
