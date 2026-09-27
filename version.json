@@ -1,8 +1,9 @@
 {
-  "version": "3.0.5",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.5/SecuriSite-Update-3.0.5.zip",
-  "notes": "B senaryosu testi 2 - KASITLI BOZUK",
+  "version": "3.0.6",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.6/SecuriSite-Update-3.0.6.zip",
+  "notes": "Geri alma: v3.0.4 koduna donuldu",
   "zorunlu": true,
   "node_modules": false,
-  "date": "2026-09-27"
+  "date": "2026-09-27",
+  "rollback_from": "3.0.4"
 }
