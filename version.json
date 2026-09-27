@@ -1,8 +1,8 @@
 {
-  "version": "3.0.1",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.1/SecuriSite-Update-3.0.1.zip",
-  "notes": "T\u00fcrk\u00e7e karakter d\u00fczeltmesi yap\u0131ld\u0131",
-  "zorunlu": false,
+  "version": "3.0.2",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.2/SecuriSite-Update-3.0.2.zip",
+  "notes": "B senaryosu testi - KASITLI BOZUK",
+  "zorunlu": true,
   "node_modules": false,
   "date": "2026-09-27"
 }
