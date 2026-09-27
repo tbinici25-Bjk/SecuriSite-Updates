@@ -1,7 +1,7 @@
 {
-  "version": "3.0.4",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.4/SecuriSite-Update-3.0.4.zip",
-  "notes": "Geri alma zombi process duzeltmesi",
+  "version": "3.0.5",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.5/SecuriSite-Update-3.0.5.zip",
+  "notes": "B senaryosu testi 2 - KASITLI BOZUK",
   "zorunlu": true,
   "node_modules": false,
   "date": "2026-09-27"
