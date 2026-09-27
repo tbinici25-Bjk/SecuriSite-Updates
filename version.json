@@ -1,9 +1,8 @@
 {
-  "version": "3.0.3",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.3/SecuriSite-Update-3.0.3.zip",
-  "notes": "Geri alma: v3.0.1 koduna donuldu",
+  "version": "3.0.4",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.4/SecuriSite-Update-3.0.4.zip",
+  "notes": "Geri alma zombi process duzeltmesi",
   "zorunlu": true,
   "node_modules": false,
-  "date": "2026-09-27",
-  "rollback_from": "3.0.1"
+  "date": "2026-09-27"
 }
