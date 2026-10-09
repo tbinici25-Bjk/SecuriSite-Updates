@@ -1,9 +1,8 @@
 {
-  "version": "3.0.6",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.6/SecuriSite-Update-3.0.6.zip",
-  "notes": "Geri alma: v3.0.4 koduna donuldu",
+  "version": "3.0.7",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.7/SecuriSite-Update-3.0.7.zip",
+  "notes": "Guvenilir geri alma: yedek tam yolla, veri korumali MIR, eski surec kapanis dogrulamasi",
   "zorunlu": true,
   "node_modules": false,
-  "date": "2026-09-27",
-  "rollback_from": "3.0.4"
+  "date": "2026-10-09"
 }
