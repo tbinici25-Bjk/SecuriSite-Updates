@@ -1,8 +1,8 @@
 {
-  "version": "3.0.7",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.7/SecuriSite-Update-3.0.7.zip",
-  "notes": "Guvenilir geri alma: yedek tam yolla, veri korumali MIR, eski surec kapanis dogrulamasi",
-  "zorunlu": true,
+  "version": "3.0.8",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.8/SecuriSite-Update-3.0.8.zip",
+  "notes": "Yeni kartlar (Daire Bilgilendirme, Boya/Duvar Kagidi, Cocuk Cikis), kargo takibi, Emel sesi tekrar deneme, gece yedegi duzeltmesi, imzada kurulumdaki guvenlik adi",
+  "zorunlu": false,
   "node_modules": false,
-  "date": "2026-10-09"
+  "date": "2026-10-13"
 }
