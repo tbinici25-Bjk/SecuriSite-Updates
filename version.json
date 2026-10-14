@@ -1,8 +1,8 @@
 {
-  "version": "3.0.8",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.8/SecuriSite-Update-3.0.8.zip",
-  "notes": "Yeni kartlar (Daire Bilgilendirme, Boya/Duvar Kagidi, Cocuk Cikis), kargo takibi, Emel sesi tekrar deneme, gece yedegi duzeltmesi, imzada kurulumdaki guvenlik adi",
-  "zorunlu": false,
+  "version": "3.0.9",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.9/SecuriSite-Update-3.0.9.zip",
+  "notes": "Emel sesi: Microsoft yeni baglanti anahtari (v2); Bekleyen Kargolar sekmesi ve emanet takibi; merkezi izleme (telemetri)",
+  "zorunlu": true,
   "node_modules": false,
-  "date": "2026-10-13"
+  "date": "2026-10-14"
 }
