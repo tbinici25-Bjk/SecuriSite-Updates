@@ -2,7 +2,7 @@
   "version": "3.0.11",
   "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.11/SecuriSite-Update-3.0.11.zip",
   "notes": "Yeni lisans sistemi (panelden onay), yayini durdur/baslat, elle kargo hatirlatmasi",
-  "zorunlu": false,
+  "zorunlu": true,
   "hemen": true,
   "node_modules": false,
   "date": "2026-10-17"
