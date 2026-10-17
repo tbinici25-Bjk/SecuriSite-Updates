@@ -1,8 +1,9 @@
 {
-  "version": "3.0.9",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.9/SecuriSite-Update-3.0.9.zip",
-  "notes": "Emel sesi: Microsoft yeni baglanti anahtari (v2); Bekleyen Kargolar sekmesi ve emanet takibi; merkezi izleme (telemetri)",
-  "zorunlu": true,
+  "version": "3.0.10",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.10/SecuriSite-Update-3.0.10.zip",
+  "notes": "Telemetri aktarici, elle kargo hatirlatmasi, hemen-sessiz guncelleme yolu",
+  "zorunlu": false,
+  "hemen": false,
   "node_modules": false,
-  "date": "2026-10-14"
+  "date": "2026-10-17"
 }
