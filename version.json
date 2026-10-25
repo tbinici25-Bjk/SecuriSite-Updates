@@ -1,9 +1,9 @@
 {
-  "version": "3.0.12",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.12/SecuriSite-Update-3.0.12.zip",
-  "notes": "Hemen-sessiz guncellemeler aninda uygulanir; 3.0.11 icerigi (yeni lisans, yayini durdur/baslat, elle kargo hatirlatmasi)",
-  "zorunlu": true,
-  "hemen": false,
+  "version": "3.0.13",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.13/SecuriSite-Update-3.0.13.zip",
+  "notes": "Is yeri duzeltmeleri (WhatsApp kopma, kurye onayi, onay eslestirme) + kisa kopmada bildirim kaybolmaz",
+  "zorunlu": false,
+  "hemen": true,
   "node_modules": false,
-  "date": "2026-10-17"
+  "date": "2026-10-25"
 }
