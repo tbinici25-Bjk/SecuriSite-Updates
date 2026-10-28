@@ -1,7 +1,7 @@
 {
-  "version": "3.0.14",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.14/SecuriSite-Update-3.0.14.zip",
-  "notes": "Eski lisans sistemi kapatildi (guvenlik)",
+  "version": "3.0.15",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.15/SecuriSite-Update-3.0.15.zip",
+  "notes": "Onay anketi kapida bekleyen tum turlerde; kargo ve emanet anketsiz",
   "zorunlu": false,
   "hemen": true,
   "node_modules": false,
