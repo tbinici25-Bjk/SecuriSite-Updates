@@ -1,7 +1,9 @@
 {
-  "version": "3.0.15",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.15/SecuriSite-Update-3.0.15.zip",
-  "notes": "Onay anketi kapida bekleyen tum turlerde; kargo ve emanet anketsiz",
+  "version": "3.0.16",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.16/SecuriSite-Update-3.0.16.zip",
+  "sha256": "e19de959de628aad1a08fe100d2c977717c63015668ecfecce3a11990b60302b",
+  "imza": "L5Zgwk/25NGUPddqe/dqYeelBdDzaWC7PRR/UXBVhdCntlcN+lYYRfhf2hjrR5tNdVKP7vtDE5txS2hrekGyCw==",
+  "notes": "Imzali guncelleme ve site hedefli yayin altyapisi",
   "zorunlu": false,
   "hemen": true,
   "node_modules": false,
