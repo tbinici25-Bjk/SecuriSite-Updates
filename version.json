@@ -1,9 +1,9 @@
 {
-  "version": "3.0.13",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.13/SecuriSite-Update-3.0.13.zip",
-  "notes": "Is yeri duzeltmeleri (WhatsApp kopma, kurye onayi, onay eslestirme) + kisa kopmada bildirim kaybolmaz",
+  "version": "3.0.14",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.14/SecuriSite-Update-3.0.14.zip",
+  "notes": "Eski lisans sistemi kapatildi (guvenlik)",
   "zorunlu": false,
   "hemen": true,
   "node_modules": false,
-  "date": "2026-10-25"
+  "date": "2026-10-28"
 }
