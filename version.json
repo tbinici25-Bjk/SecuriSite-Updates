@@ -1,11 +1,11 @@
 {
-  "version": "3.0.18",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.18/SecuriSite-Update-3.0.18.zip",
-  "sha256": "40e494a775ba3a17c11cb3292e7f9442316b98f4b90435d9570452a62e4eb6b3",
-  "imza": "OlawJL+VzXTdCfeLjCzHd5DhsQHpGRGEZSwj8PM+s1bvDg7ir5mjIc3lRWoeGsyCKswMOdJkzf5UPqsjv187AQ==",
-  "notes": "Loglar'da kargo yeniden gorunur: genel kargo girisi (daire/sakin yok)",
+  "version": "3.0.19",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.19/SecuriSite-Update-3.0.19.zip",
+  "sha256": "bf1c49c657ac70e2a43ee706460e3a48a00149765841dbe45df114918da8c46d",
+  "imza": "Yp3i0RfKWy/C2pl5W3Dssx3abDxEYDAdN3WFAR5J5LI5z7LAPNBZwidqIdeZOlMduZ5CDFNumHojkkTGNLq5BQ==",
+  "notes": "Yonetici ozeti resimli kart; Loglar'da kargo paket/daire seridi; Bekleyen Kargolar'da teslim gunlugu",
   "zorunlu": false,
   "hemen": true,
   "node_modules": false,
-  "date": "2026-11-03"
+  "date": "2026-11-04"
 }
