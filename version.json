@@ -1,11 +1,11 @@
 {
-  "version": "3.0.20",
-  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.20/SecuriSite-Update-3.0.20.zip",
-  "sha256": "90a9b4af7770c0ecfc3ae672cbbc551f03ea32ca300475c6c928652fcb8dd29f",
-  "imza": "rvMdYEFDg2EHBIKImH1hFA7h98FQoQVfkGOdwEa8gI4kUqsdv+RqOg0BhhofRjgHwxSTReAIs0ySaPB2dAr8CA==",
-  "notes": "Loglar'da kargo yine tam ayrintili; teslim gunlugunde yalnizca tarih kutusu",
+  "version": "3.0.22",
+  "zip_url": "https://github.com/tbinici25-Bjk/SecuriSite-Updates/releases/download/v3.0.22/SecuriSite-Update-3.0.22.zip",
+  "sha256": "d02013a6606d6a3d9a74a40c5f0cd12409851b29349248086bad473ebe620085",
+  "imza": "C0nZ1YoQplcwF2NV19wRbrCBzhxqewh9t0EFJRjg0LoEnn7TBcsVn7Ke1AhgXqfhyQ/CL0jupMUzQ2A1XWD9Bg==",
+  "notes": "Taksi ve Ogrenci Servisi girisi (tek dokunus, geri al); Loglar Olaylar kutusu sade",
   "zorunlu": false,
   "hemen": true,
   "node_modules": false,
-  "date": "2026-11-07"
+  "date": "2026-11-13"
 }
